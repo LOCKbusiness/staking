@@ -2,7 +2,9 @@
   "name": "lock-staking",
   "version": "0.0.1",
   "description": "",
-  "scripts": {},
+  "scripts": {
+    "lq": "ts-node liquidity-manager/main.ts"
+  },
   "author": "",
   "license": "UNLICENSED",
   "devDependencies": {
