@@ -5,6 +5,9 @@
   "cSpell.words": [
     "masternode",
     "masternodes",
-    "utxo"
-  ]
+    "utxo",
+    "MASTERNODE",
+    "defichain"
+  ],
+  "editor.formatOnSave": true
 }
