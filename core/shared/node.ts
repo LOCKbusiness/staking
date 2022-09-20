@@ -2,6 +2,7 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc';
 import { ApiClient } from '@defichain/jellyfish-api-core';
 import { InWalletTransaction } from '@defichain/jellyfish-api-core/dist/category/wallet';
 import { getCliInput, poll, round } from './util';
+import { MasternodeInfo } from '@defichain/jellyfish-api-core/dist/category/masternode';
 
 export class Node {
   private readonly client: ApiClient;
@@ -45,6 +46,10 @@ export class Node {
     if (tx && tx.confirmations > 0) return tx;
 
     throw new Error(`Wait for TX ${txId} timed out`);
+  }
+
+  async getMasternodeInfo(id: string): Promise<MasternodeInfo> {
+    return await this.client.masternode.getMasternode(id).then((r) => r[id]);
   }
 
   // --- HELPER METHODS --- //
