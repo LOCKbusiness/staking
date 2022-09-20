@@ -1,3 +1,4 @@
+import { MainNet, Network, TestNet } from '@defichain/jellyfish-network';
 import readline from 'readline';
 import { Writable } from 'stream';
 
@@ -94,5 +95,16 @@ export class Util {
       });
       muted = isPassword;
     });
+  }
+
+  // --- JELLYFISH UTIL --- //
+  static readNetwork(): Network {
+    const chainNetwork = process.env.CHAIN_NETWORK ?? '';
+    switch (chainNetwork.toLowerCase()) {
+      case 'mainnet':
+        return MainNet;
+      default:
+        return TestNet;
+    }
   }
 }
