@@ -1,7 +1,11 @@
+import { Logger } from '../../shared/logger';
+
 export class SecureSeed {
+  private static logger = new Logger('Secure Seed');
+
   static async splitAndStore(seed: string[]): Promise<void> {
-    console.log('"safely" secured following seed :D');
-    console.log(seed);
+    this.logger.info('"safely" secured following seed :D');
+    this.logger.info('', seed);
   }
 
   static async read(): Promise<string[]> {

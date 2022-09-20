@@ -3,28 +3,28 @@ import { exit } from 'process';
 import { Operation } from '../shared/communication/operation';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
-import { MasternodeCommunication } from './communication/masternode-communication';
-import { WalletHelper } from './wallet/wallet-helper';
+import { ColdWalletCommunication } from './cold-wallet-communication';
 
 class App {
-  private readonly communication: MasternodeCommunication;
+  private readonly communication: ColdWalletCommunication;
   private readonly logger: Logger;
 
   constructor() {
     config();
-    this.communication = new MasternodeCommunication();
-    this.logger = new Logger('Cold Wallet');
+    this.communication = new ColdWalletCommunication();
+    this.logger = new Logger('Masternode Manager');
   }
 
   async run(): Promise<void> {
-    const wallet = await WalletHelper.restore();
-    wallet.initialize();
-    this.logger.info(await wallet.getAddress());
-
     await this.communication.connect();
+    const message = await this.communication.query(Operation.TEST, undefined);
+    this.logger.info('received answer', message);
 
     try {
       while (true) {
+        // fetch info from API
+        // parse and create operations
+        // send operations via cold wallet communication
         await Util.sleep(5);
       }
     } catch (e) {

@@ -18,7 +18,7 @@ export class ColdWallet {
   private network: Network;
   private client: WhaleApiClient;
 
-  private wallet: JellyfishWallet<WhaleWalletAccount, WalletHdNode> | undefined;
+  private wallet?: JellyfishWallet<WhaleWalletAccount, WalletHdNode>;
 
   constructor(seed: string[], network: Network) {
     this.seed = seed;
