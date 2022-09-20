@@ -1,4 +1,3 @@
-import { config } from 'dotenv';
 import { exit } from 'process';
 import { Operation } from '../shared/communication/operation';
 import { Logger } from '../shared/logger';
@@ -10,7 +9,6 @@ class App {
   private readonly logger: Logger;
 
   constructor() {
-    config();
     this.communication = new ColdWalletCommunication();
     this.logger = new Logger('Masternode Manager');
   }

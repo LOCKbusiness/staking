@@ -4,7 +4,7 @@ import { BaseCommunication } from './base-communication';
 import { Message } from './message';
 
 export abstract class BaseServerCommunication extends BaseCommunication {
-  private readonly logger: Logger;
+  protected readonly logger: Logger;
   private readonly server: Server;
   private connectedSocket?: Socket;
 
@@ -17,6 +17,7 @@ export abstract class BaseServerCommunication extends BaseCommunication {
   }
 
   abstract listenOnPort(): number;
+  abstract onDataReceived(data: any): Promise<Message>;
 
   async connect(): Promise<void> {
     this.logger.info('listening on', this.listenOnPort());
@@ -36,9 +37,8 @@ export abstract class BaseServerCommunication extends BaseCommunication {
 
   private onSocketConnected(socket: Socket) {
     this.logger.info('socket connected');
-    socket.addListener('data', (data) => {
-      const message = JSON.parse(String(data)) as Message;
-      this.logger.info('received', message);
+    socket.addListener('data', async (data) => {
+      const message = await this.onDataReceived(data);
       this.send(message);
     });
     this.connectedSocket = socket;
