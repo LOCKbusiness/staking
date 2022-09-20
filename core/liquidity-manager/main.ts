@@ -45,7 +45,7 @@ class App {
         this.logger.error(`Exception: ${e}`);
       }
 
-      await Util.sleep(60);
+      await Util.sleep(300);
     }
   }
 }
