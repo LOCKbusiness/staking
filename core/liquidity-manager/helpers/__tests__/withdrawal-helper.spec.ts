@@ -6,6 +6,7 @@ import { WithdrawalHelper } from '../withdrawal-helper';
 import { createDefaultLogger } from '../../../shared/__mocks__/locker.mock';
 import { createCustomWithdrawal, createDefaultWithdrawal } from '../../../shared/dto/__mocks__/withdrawal.mock';
 import { InWalletTransaction } from '@defichain/jellyfish-api-core/dist/category/wallet';
+import Config from '../../../shared/config';
 
 describe('WithdrawalHelper', () => {
   let service: WithdrawalHelper;
@@ -42,7 +43,7 @@ describe('WithdrawalHelper', () => {
 
     await service.payoutWithdrawals(balance, withdrawals);
 
-    expect(node.sendUtxo).toBeCalledWith({ [process.env.PAYOUT_WALLET_ADDRESS as string]: 30 });
+    expect(node.sendUtxo).toBeCalledWith({ [Config.payoutWalletAddress]: 30 });
     expect(api.setWithdrawalReady).toBeCalledTimes(withdrawals.length);
     expect(api.setWithdrawalReady).toBeCalledWith(2);
     expect(api.setWithdrawalReady).toBeCalledWith(1);
@@ -60,7 +61,7 @@ describe('WithdrawalHelper', () => {
 
     await service.payoutWithdrawals(balance, withdrawals);
 
-    expect(node.sendUtxo).toBeCalledWith({ [process.env.PAYOUT_WALLET_ADDRESS as string]: 30 });
+    expect(node.sendUtxo).toBeCalledWith({ [Config.payoutWalletAddress]: 30 });
     expect(api.setWithdrawalReady).toBeCalledTimes(2);
     expect(api.setWithdrawalReady).toBeCalledWith(3);
     expect(api.setWithdrawalReady).toBeCalledWith(2);

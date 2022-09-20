@@ -5,26 +5,23 @@ import { Logger } from '../../shared/logger';
 import { Util } from '../../shared/util';
 import { Node } from '../../shared/node';
 import { Api } from '../../shared/api';
+import Config from '../../shared/config';
 
 export class LiquidityHelper {
-  private readonly masternodeCollateral = 20000;
-  private readonly masternodeFee = 10;
-
-  private readonly minLiquidity = 50000; // TODO
-  // TODO: max?
-
   constructor(private readonly api: Api, private readonly node: Node, private readonly logger: Logger) {}
 
   async checkLiquidity(balance: number, withdrawals: Withdrawal[], masternodes: Masternode[]): Promise<void> {
     const currentLiquidity = await this.getCurrentLiquidity(balance, withdrawals, masternodes);
-    const excessiveLiquidity = currentLiquidity - this.minLiquidity;
-    if (excessiveLiquidity > this.masternodeCollateral + this.masternodeFee) {
+    const excessiveLiquidity = currentLiquidity - Config.liquidity.max;
+    const missingLiquidity = Config.liquidity.min - currentLiquidity;
+
+    if (excessiveLiquidity > Config.masternode.collateral + Config.masternode.fee) {
       // create
-      const count = Math.floor(excessiveLiquidity / (this.masternodeCollateral + this.masternodeFee));
+      const count = Math.floor(excessiveLiquidity / (Config.masternode.collateral + Config.masternode.fee));
       await this.createMasternodes(count);
-    } else if (excessiveLiquidity < 0) {
+    } else if (missingLiquidity > 0) {
       // resign
-      const count = Math.ceil(Math.abs(excessiveLiquidity) / this.masternodeCollateral);
+      const count = Math.ceil(Math.abs(excessiveLiquidity) / Config.masternode.collateral);
       await this.resignMasternode(count, masternodes);
     }
   }
@@ -38,7 +35,7 @@ export class LiquidityHelper {
       [MasternodeState.RESIGNING /* TODO: add other enum values */].includes(mn.state),
     );
 
-    const pendingResignAmount = resigningMasternodes.length * this.masternodeCollateral;
+    const pendingResignAmount = resigningMasternodes.length * Config.masternode.collateral;
     const pendingWithdrawalAmount = Util.sumObj(withdrawals, 'amount');
 
     return balance + pendingResignAmount - pendingWithdrawalAmount;
@@ -49,7 +46,7 @@ export class LiquidityHelper {
     let tx;
     for (let i = 0; i < count; i++) {
       tx = await this.node.sendUtxo({
-        [process.env.MASTERNODE_WALLET_ADDRESS as string]: this.masternodeCollateral + this.masternodeFee,
+        [Config.masternodeWalletAddress]: Config.masternode.collateral + Config.masternode.fee,
       });
       this.logger.info(`Sending collateral to masternode wallet: ${tx}`);
     }
@@ -64,8 +61,11 @@ export class LiquidityHelper {
     for (const masternode of masternodeTms.slice(0, count)) {
       this.logger.info(`Resigning masternode ${masternode.id}`);
 
-      // TODO: create resign signature
-      await this.api.requestMasternodeResign(masternode.id, 'TODO');
+      const signature = await this.node.signMessage(
+        Config.liquidityWalletAddress,
+        Config.masternode.resignMessage(masternode.id, masternode.creationHash),
+      );
+      await this.api.requestMasternodeResign(masternode.id, signature);
     }
   }
 

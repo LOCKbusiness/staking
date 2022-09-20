@@ -3,6 +3,7 @@ import { Crypto } from '../../shared/crypto';
 import { Api } from '../../shared/api';
 import { Node } from '../../shared/node';
 import { Logger } from '../../shared/logger';
+import Config from '../../shared/config';
 
 export class WithdrawalHelper {
   constructor(private readonly api: Api, private readonly node: Node, private readonly logger: Logger) {}
@@ -31,7 +32,7 @@ export class WithdrawalHelper {
     }
 
     if (withdrawalSum > 0) {
-      const tx = await this.node.sendUtxo({ [process.env.PAYOUT_WALLET_ADDRESS as string]: withdrawalSum });
+      const tx = await this.node.sendUtxo({ [Config.payoutWalletAddress]: withdrawalSum });
       this.logger.info(
         `Sending withdrawals ${possibleWithdrawals
           .map((w) => w.id)

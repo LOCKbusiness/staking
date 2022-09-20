@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, Method } from 'axios';
 import jwtDecode from 'jwt-decode';
+import Config from './config';
 import { Masternode } from './dto/masternode';
 import { Withdrawal } from './dto/withdrawal';
 import { Util } from './util';
@@ -11,7 +12,7 @@ export class Api {
   private expires?: Date;
 
   constructor() {
-    this.apiUrl = process.env.API_URL;
+    this.apiUrl = Config.api.url;
   }
 
   // --- MASTERNODES --- //
@@ -54,8 +55,8 @@ export class Api {
     // renew
     if (this.accessToken == null || this.expires == null || this.expires <= new Date()) {
       const result = await axios.post<{ accessToken: string }>(`${this.apiUrl}/auth/signIn`, {
-        address: process.env.API_ADDRESS,
-        signature: process.env.API_SIGNATURE,
+        address: Config.api.address,
+        signature: Config.api.signature,
       });
       this.accessToken = result.data.accessToken;
 
