@@ -1,5 +1,5 @@
 import { verify } from 'bitcoinjs-message';
-import { MainNet } from '@defichain/jellyfish-network';
+import { Util } from './util';
 
 export class Crypto {
   static verifySignature(message: string, address: string, signature: string): boolean {
@@ -32,6 +32,6 @@ export class Crypto {
   }
 
   private static verify(message: string, address: string, signature: string): boolean {
-    return verify(message, address, signature, MainNet.messagePrefix);
+    return verify(message, address, signature, Util.readNetwork().messagePrefix);
   }
 }
