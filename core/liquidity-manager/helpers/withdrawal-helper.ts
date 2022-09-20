@@ -14,8 +14,9 @@ export class WithdrawalHelper {
   }
 
   private isWithdrawalValid(withdrawal: Withdrawal): boolean {
-    // TODO: verify with blockchain balance?
-    return Crypto.verifySignature(withdrawal.address + withdrawal.amount, withdrawal.address, withdrawal.signature);
+    // TODO (David): verify with blockchain balance?
+    const message = Config.withdrawalMessage(withdrawal.amount, withdrawal.asset, withdrawal.address);
+    return Crypto.verifySignature(message, withdrawal.address, withdrawal.signature);
   }
 
   async payoutWithdrawals(balance: number, withdrawals: Withdrawal[]): Promise<void> {
@@ -41,7 +42,6 @@ export class WithdrawalHelper {
 
       await this.node.waitForTx(tx).catch((e) => this.logger.error(`Wait for payout TX failed: ${e}`));
 
-      // TODO: implement some error handling in case of API update failure?
       for (const withdrawal of possibleWithdrawals) {
         await this.api.setWithdrawalReady(withdrawal.id);
       }

@@ -37,6 +37,10 @@ class ConfigClass {
   defichain = {
     network: process.env.CHAIN_NETWORK,
   };
+
+  withdrawalMessage(amount: number, asset: string, address: string): string {
+    return `Withdraw ${amount} ${asset} to ${address}`;
+  }
 }
 
 config();
