@@ -9,6 +9,7 @@ import { InWalletTransaction } from '@defichain/jellyfish-api-core/dist/category
 import { createDefaultLogger } from '../../../shared/__mocks__/locker.mock';
 import { createDefaultMasternode } from '../../../shared/dto/__mocks__/masternode.mock';
 import { MasternodeInfo, MasternodeState } from '@defichain/jellyfish-api-core/dist/category/masternode';
+import Config from '../../../shared/config';
 
 describe('LiquidityHelper', () => {
   let service: LiquidityHelper;
@@ -25,8 +26,8 @@ describe('LiquidityHelper', () => {
     service = new LiquidityHelper(api, node, logger);
   });
 
-  it('should build a masternode, if balance is above 70010 DFI', async () => {
-    const balance = 75000;
+  it('should build a masternode, if balance is above max. liquidity', async () => {
+    const balance = Config.liquidity.max + 30000;
     const withdrawals: Withdrawal[] = [];
     const masternodes: Masternode[] = [];
 
@@ -35,18 +36,19 @@ describe('LiquidityHelper', () => {
 
     await service.checkLiquidity(balance, withdrawals, masternodes);
 
-    expect(node.sendUtxo).toBeCalledWith({ [process.env.MASTERNODE_WALLET_ADDRESS as string]: 20010 });
+    expect(node.sendUtxo).toBeCalledWith({ [Config.masternodeWalletAddress]: 20010 });
   });
 
-  it('should resign a masternode, if balance is below 50000 DFI', async () => {
-    const balance = 45000;
+  it('should resign a masternode, if balance is below min. liquidity', async () => {
+    const balance = Config.liquidity.min - 5000;
     const withdrawals: Withdrawal[] = [];
     const masternodes: Masternode[] = [createDefaultMasternode()];
 
     jest.spyOn(node, 'getMasternodeInfo').mockResolvedValue({ state: MasternodeState.ENABLED } as MasternodeInfo);
+    jest.spyOn(node, 'signMessage').mockResolvedValue('dummy-signature');
 
     await service.checkLiquidity(balance, withdrawals, masternodes);
 
-    expect(api.requestMasternodeResign).toBeCalledWith(masternodes[0].id, 'TODO');
+    expect(api.requestMasternodeResign).toBeCalledWith(masternodes[0].id, 'dummy-signature');
   });
 });
