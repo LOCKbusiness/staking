@@ -1,8 +1,8 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc';
 import { ApiClient } from '@defichain/jellyfish-api-core';
 import { InWalletTransaction } from '@defichain/jellyfish-api-core/dist/category/wallet';
-import { getCliInput, poll, round } from './util';
 import { MasternodeInfo } from '@defichain/jellyfish-api-core/dist/category/masternode';
+import { Util } from './util';
 
 export class Node {
   private readonly client: ApiClient;
@@ -17,7 +17,7 @@ export class Node {
   }
 
   async init(): Promise<void> {
-    this.walletPassword = await getCliInput('Wallet password:', true);
+    this.walletPassword = await Util.getCliInput('Wallet password:', true);
 
     // verify password
     await this.unlockWallet();
@@ -36,7 +36,7 @@ export class Node {
   }
 
   async waitForTx(txId: string, timeout = 1200): Promise<InWalletTransaction> {
-    const tx = await poll(
+    const tx = await Util.poll(
       () => this.client.wallet.getTransaction(txId),
       (t) => (t?.confirmations ?? 0) > 0,
       5,
@@ -58,6 +58,6 @@ export class Node {
   }
 
   private roundAmount(amount: number): number {
-    return round(amount, 8);
+    return Util.round(amount, 8);
   }
 }
