@@ -1,4 +1,5 @@
 export enum WithdrawalState {
+  PENDING = 'Pending',
   // TBD
 }
 

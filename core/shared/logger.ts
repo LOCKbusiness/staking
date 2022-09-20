@@ -14,6 +14,6 @@ export class Logger {
   }
 
   private getMessage(message: string): string {
-    return `${this.name} - ${new Date()} - ${message}`;
+    return `${this.name} - ${new Date().toLocaleString()} - ${message}`;
   }
 }
