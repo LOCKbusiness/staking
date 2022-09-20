@@ -1,3 +1,5 @@
+import { config } from 'dotenv';
+
 class ConfigClass {
   liquidityWalletAddress = process.env.LIQUIDITY_WALLET_ADDRESS ?? '';
   masternodeWalletAddress = process.env.MASTERNODE_WALLET_ADDRESS ?? '';
@@ -37,5 +39,6 @@ class ConfigClass {
   };
 }
 
+config();
 const Config = new ConfigClass();
 export default Config;
