@@ -1,5 +1,7 @@
 import axios, { AxiosRequestConfig, Method } from 'axios';
 import jwtDecode from 'jwt-decode';
+import { Masternode } from './dto/masternode';
+import { Withdrawal } from './dto/withdrawal';
 import { Util } from './util';
 
 export class Api {
@@ -12,8 +14,32 @@ export class Api {
     this.apiUrl = process.env.API_URL;
   }
 
+  // --- MASTERNODES --- //
+  async getMasternodes(): Promise<Masternode[]> {
+    return await this.callApi('masternode');
+  }
+
+  async requestMasternodeResign(id: number, signature: string): Promise<void> {
+    return await this.callApi(`masternode/${id}/resign`, 'POST', { signature });
+  }
+
+  // --- WITHDRAWALS --- //
+  async getPendingWithdrawals(): Promise<Withdrawal[]> {
+    return await this.callApi('staking/withdrawals/pending');
+  }
+
+  async setWithdrawalReady(id: number): Promise<void> {
+    return await this.callApi(`staking/withdrawal/${id}/ready`, 'POST', undefined, 3);
+  }
+
   // --- HELPER METHODS --- //
-  private async callApi<T>(url: string, method: Method = 'GET', data?: any, tryCount = 1, retryDelay = 1): Promise<T> {
+  private async callApi<T>(
+    url: string,
+    method: Method = 'GET',
+    data?: any,
+    tryCount = 1,
+    retryDelay = 300,
+  ): Promise<T> {
     const config: AxiosRequestConfig = {
       url: `${this.apiUrl}/${url}`,
       method,
