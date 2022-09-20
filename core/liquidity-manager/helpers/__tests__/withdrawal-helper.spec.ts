@@ -30,9 +30,17 @@ describe('WithdrawalHelper', () => {
   });
 
   it('should only return valid withdrawals', async () => {
-    jest.spyOn(api, 'getPendingWithdrawals').mockResolvedValue([createDefaultWithdrawal()]);
+    jest.spyOn(api, 'getPendingWithdrawals').mockResolvedValue([
+      createDefaultWithdrawal(),
+      createCustomWithdrawal({
+        amount: 12,
+        asset: 'DFI',
+        address: 'tf1q690jw86dfnqwj0nfr05w7cl2fv9z3jm60fp0sz',
+        signature: 'H4I5E97vSPaDWuCMBd31QaegY1pfEYcwS5NSkBQMGWkbXBoBn99GRKUoCd5Apye284D3VcZU+jVL0wJRK4unruk=',
+      }),
+    ]);
 
-    await expect(service.getValidWithdrawals()).resolves.toHaveLength(0);
+    await expect(service.getValidWithdrawals()).resolves.toHaveLength(1);
   });
 
   it('should payout all withdrawals, if balance is enough', async () => {

@@ -8,5 +8,6 @@ export interface Withdrawal {
   state: WithdrawalState;
   address: string;
   amount: number;
+  asset: string;
   signature: string;
 }
