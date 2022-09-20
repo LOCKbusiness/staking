@@ -26,6 +26,15 @@ class ConfigClass {
       return `Resign masternode ${mnId} with hash ${creationHash}`;
     },
   };
+
+  ocean = {
+    url: process.env.OCEAN_URL,
+    version: process.env.OCEAN_VERSION,
+  };
+
+  defichain = {
+    network: process.env.CHAIN_NETWORK,
+  };
 }
 
 const Config = new ConfigClass();

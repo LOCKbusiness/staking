@@ -1,6 +1,7 @@
 import { MainNet, Network, TestNet } from '@defichain/jellyfish-network';
 import readline from 'readline';
 import { Writable } from 'stream';
+import Config from './config';
 
 type KeyType<T, U> = {
   [K in keyof T]: T[K] extends U ? K : never;
@@ -99,8 +100,8 @@ export class Util {
 
   // --- JELLYFISH UTIL --- //
   static readNetwork(): Network {
-    const chainNetwork = process.env.CHAIN_NETWORK ?? '';
-    switch (chainNetwork.toLowerCase()) {
+    const chainNetwork = Config.defichain.network;
+    switch (chainNetwork?.toLowerCase()) {
       case 'mainnet':
         return MainNet;
       default:
