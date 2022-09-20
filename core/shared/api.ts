@@ -37,7 +37,7 @@ export class Api {
   private async callApi<T>(
     url: string,
     method: Method = 'GET',
-    data?: any,
+    data?: object,
     tryCount = 1,
     retryDelay = 300,
   ): Promise<T> {

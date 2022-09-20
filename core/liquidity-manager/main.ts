@@ -29,7 +29,7 @@ class App {
   async run(): Promise<void> {
     await this.node.init();
 
-    while (true) {
+    for (;;) {
       try {
         const balance = await this.node.getBalance();
         const withdrawals = await this.withdrawal.getValidWithdrawals();

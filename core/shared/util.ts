@@ -19,31 +19,39 @@ export class Util {
     timeout: number,
     catchErrors?: boolean,
   ): Promise<T | undefined> {
-    return new Promise(async (resolve, reject) => {
-      let abort = false;
+    return new Promise((resolve) => this.doPoll(action, verify, interval, timeout, catchErrors).then(resolve));
+  }
 
-      // action/error handling
-      const doAction = async () =>
-        await action().catch((e) => {
-          if (catchErrors) return undefined;
+  private static async doPoll<T>(
+    action: () => Promise<T | undefined>,
+    verify: (result: T | undefined) => boolean,
+    interval: number,
+    timeout: number,
+    catchErrors?: boolean,
+  ): Promise<T | undefined> {
+    let abort = false;
 
-          abort = true;
-          reject(e);
-        });
+    // action/error handling
+    const doAction = async () =>
+      await action().catch((e) => {
+        if (catchErrors) return undefined;
 
-      // set timer
-      const timer = setTimeout(() => (abort = true), timeout * 1000);
+        abort = true;
+        throw e;
+      });
 
-      // poll
-      let result = await doAction();
-      while (!abort && !verify(result)) {
-        await this.sleep(interval);
-        result = await doAction();
-      }
+    // set timer
+    const timer = setTimeout(() => (abort = true), timeout * 1000);
 
-      clearTimeout(timer);
-      return resolve(result);
-    });
+    // poll
+    let result = await doAction();
+    while (!abort && !verify(result)) {
+      await this.sleep(interval);
+      result = await doAction();
+    }
+
+    clearTimeout(timer);
+    return result;
   }
 
   static async retry<T>(action: () => Promise<T>, tryCount = 3, delay = 0): Promise<T> {

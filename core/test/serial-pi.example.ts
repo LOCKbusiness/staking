@@ -13,7 +13,7 @@ class App {
     await this.serial.open('/dev/serial0');
     this.serial.onData(console.log);
 
-    while (true) {
+    for (;;) {
       await this.serial.send({ message: 'Pi to Mac!', success: true, date: new Date() });
       await Util.sleep(1);
     }
