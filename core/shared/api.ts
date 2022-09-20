@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, Method } from 'axios';
-import { retry } from './util';
 import jwtDecode from 'jwt-decode';
+import { Util } from './util';
 
 export class Api {
   private readonly apiUrl;
@@ -21,7 +21,7 @@ export class Api {
       headers: { Authorization: 'Bearer ' + (await this.getAccessToken()) },
     };
 
-    return await retry(() => axios.request<T>(config).then((r) => r.data), tryCount, retryDelay);
+    return await Util.retry(() => axios.request<T>(config).then((r) => r.data), tryCount, retryDelay);
   }
 
   private async getAccessToken(): Promise<string | undefined> {
