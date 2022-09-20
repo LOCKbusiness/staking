@@ -10,7 +10,7 @@ export class Node {
 
   private walletPassword?: string;
 
-  constructor(port: number = 8555) {
+  constructor(port = 8555) {
     const passwordHash = Buffer.from(Config.node.auth).toString('base64');
     this.client = new JsonRpcClient(`http://127.0.0.1:${port}/`, {
       headers: { Authorization: 'Basic ' + passwordHash },

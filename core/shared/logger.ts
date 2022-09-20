@@ -1,16 +1,18 @@
+export type LogPayload = object | string;
+
 export class Logger {
   constructor(private readonly name: string) {}
 
-  info(message: string, obj?: any): void {
-    console.log(this.getMessage(message), obj ? obj : '');
+  info(message: string, payload?: LogPayload): void {
+    console.log(this.getMessage(message), payload ? payload : '');
   }
 
-  warning(message: string, obj?: any): void {
-    console.warn(this.getMessage(message), obj ? obj : '');
+  warning(message: string, payload?: LogPayload): void {
+    console.warn(this.getMessage(message), payload ? payload : '');
   }
 
-  error(message: string, obj?: any): void {
-    console.error(this.getMessage(message), obj ? obj : '');
+  error(message: string, payload?: LogPayload): void {
+    console.error(this.getMessage(message), payload ? payload : '');
   }
 
   private getMessage(message: string): string {

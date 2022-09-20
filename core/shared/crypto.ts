@@ -6,7 +6,9 @@ export class Crypto {
     let isValid = false;
     try {
       isValid = this.verify(message, address, signature);
-    } catch (e) {}
+    } catch (e) {
+      // ignore error
+    }
 
     if (!isValid) {
       isValid = this.fallbackVerify(message, address, signature);
@@ -26,7 +28,9 @@ export class Crypto {
       try {
         isValid = this.verify(message, address, candidateSig);
         if (isValid) break;
-      } catch (e) {}
+      } catch (e) {
+        // ignore error
+      }
     }
     return isValid;
   }
