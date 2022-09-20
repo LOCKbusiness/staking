@@ -1,6 +1,4 @@
-import { config } from 'dotenv';
 import { exit } from 'process';
-import { Operation } from '../shared/communication/operation';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
 import { MasternodeCommunication } from './communication/masternode-communication';
@@ -11,7 +9,6 @@ class App {
   private readonly logger: Logger;
 
   constructor() {
-    config();
     this.communication = new MasternodeCommunication();
     this.logger = new Logger('Cold Wallet');
   }
@@ -21,11 +18,15 @@ class App {
     wallet.initialize();
     this.logger.info(await wallet.getAddress());
 
+    this.communication.setCreateTx((operation, payload) => {
+      return wallet.createTx(operation, payload);
+    });
+
     await this.communication.connect();
 
     try {
       while (true) {
-        await Util.sleep(5);
+        await Util.sleep(1);
       }
     } catch (e) {
       this.logger.error(`Exception: ${e}`);
