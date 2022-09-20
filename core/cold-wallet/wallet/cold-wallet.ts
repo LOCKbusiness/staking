@@ -15,6 +15,8 @@ export class ColdWallet {
   constructor(seed: string[], network: Network) {
     this.seed = seed;
     this.network = network;
+    // TODO (Krysh) remove this client as soon as serial communication is setup
+    // cold wallet should not need to have internet access
     this.client = new WhaleApiClient({
       url: process.env.OCEAN_URL,
       version: process.env.OCEAN_VERSION,
