@@ -10,6 +10,7 @@ import {
   WhaleApiResponse,
 } from '@defichain/whale-api-client';
 import { Logger } from '../../shared/logger';
+import Config from '../../shared/config';
 
 export class ColdWallet {
   public static NEEDED_SEED_LENGTH = 24;
@@ -25,8 +26,8 @@ export class ColdWallet {
     // TODO (Krysh) remove this client as soon as serial communication is setup
     // cold wallet should not need to have internet access
     this.client = new ColdWalletClient({
-      url: process.env.OCEAN_URL,
-      version: process.env.OCEAN_VERSION,
+      url: Config.ocean.url,
+      version: Config.ocean.version,
       network: network.name,
     });
   }
