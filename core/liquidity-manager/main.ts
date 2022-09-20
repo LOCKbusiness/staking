@@ -1,5 +1,4 @@
 import { exit } from 'process';
-import { config } from 'dotenv';
 import { Api } from '../shared/api';
 import { Node } from '../shared/node';
 import { Logger } from '../shared/logger';
@@ -16,8 +15,6 @@ class App {
   private readonly withdrawal: WithdrawalHelper;
 
   constructor() {
-    config();
-
     this.api = new Api();
     this.node = new Node();
     this.logger = new Logger('Liquidity Manager');
