@@ -8,7 +8,10 @@ import { Masternode, MasternodeState } from '../../../shared/dto/masternode';
 import { InWalletTransaction } from '@defichain/jellyfish-api-core/dist/category/wallet';
 import { createDefaultLogger } from '../../../shared/__mocks__/logger.mock';
 import { createCustomMasternode, createDefaultMasternode } from '../../../shared/dto/__mocks__/masternode.mock';
-import { MasternodeInfo, MasternodeState as MnState } from '@defichain/jellyfish-api-core/dist/category/masternode';
+import {
+  MasternodeInfo,
+  MasternodeState as JellyMasternodeState,
+} from '@defichain/jellyfish-api-core/dist/category/masternode';
 import Config from '../../../shared/config';
 import { createCustomWithdrawal } from '../../../shared/dto/__mocks__/withdrawal.mock';
 
@@ -46,7 +49,7 @@ describe('LiquidityHelper', () => {
     const withdrawals: Withdrawal[] = [];
     const masternodes: Masternode[] = [createDefaultMasternode()];
 
-    jest.spyOn(node, 'getMasternodeInfo').mockResolvedValue({ state: MnState.ENABLED } as MasternodeInfo);
+    jest.spyOn(node, 'getMasternodeInfo').mockResolvedValue({ state: JellyMasternodeState.ENABLED } as MasternodeInfo);
     jest.spyOn(node, 'signMessage').mockResolvedValue('dummy-signature');
 
     await service.checkLiquidity(balance, withdrawals, masternodes);
@@ -71,7 +74,7 @@ describe('LiquidityHelper', () => {
     const withdrawals: Withdrawal[] = [createCustomWithdrawal({ amount: 10000 })];
     const masternodes: Masternode[] = [createDefaultMasternode()];
 
-    jest.spyOn(node, 'getMasternodeInfo').mockResolvedValue({ state: MnState.ENABLED } as MasternodeInfo);
+    jest.spyOn(node, 'getMasternodeInfo').mockResolvedValue({ state: JellyMasternodeState.ENABLED } as MasternodeInfo);
     jest.spyOn(node, 'signMessage').mockResolvedValue('dummy-signature');
 
     await service.checkLiquidity(balance, withdrawals, masternodes);

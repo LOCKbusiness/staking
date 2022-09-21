@@ -1,4 +1,7 @@
-import { MasternodeInfo, MasternodeState as MnState } from '@defichain/jellyfish-api-core/dist/category/masternode';
+import {
+  MasternodeInfo,
+  MasternodeState as JellyMasternodeState,
+} from '@defichain/jellyfish-api-core/dist/category/masternode';
 import { Masternode, MasternodeState } from '../../shared/dto/masternode';
 import { Withdrawal } from '../../shared/dto/withdrawal';
 import { Logger } from '../../shared/logger';
@@ -77,7 +80,7 @@ export class LiquidityHelper {
     const runningMasternodes = masternodes.filter((mn) => mn.state === MasternodeState.CREATED);
     const masternodeInfos = await this.getMasternodeInfos(runningMasternodes);
     return masternodeInfos
-      .filter((m) => m.info.state === MnState.ENABLED)
+      .filter((m) => m.info.state === JellyMasternodeState.ENABLED)
       .map((m) => ({ ...m, tm: Util.avg(m.info.targetMultipliers ?? []) }))
       .sort((a, b) => (a.tm > b.tm ? 1 : -1));
   }
