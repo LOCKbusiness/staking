@@ -1,12 +1,14 @@
 import { verify } from 'bitcoinjs-message';
-import { MainNet } from '@defichain/jellyfish-network';
+import { Util } from './util';
 
 export class Crypto {
   static verifySignature(message: string, address: string, signature: string): boolean {
     let isValid = false;
     try {
       isValid = this.verify(message, address, signature);
-    } catch (e) {}
+    } catch (e) {
+      // ignore error
+    }
 
     if (!isValid) {
       isValid = this.fallbackVerify(message, address, signature);
@@ -26,12 +28,14 @@ export class Crypto {
       try {
         isValid = this.verify(message, address, candidateSig);
         if (isValid) break;
-      } catch (e) {}
+      } catch (e) {
+        // ignore error
+      }
     }
     return isValid;
   }
 
   private static verify(message: string, address: string, signature: string): boolean {
-    return verify(message, address, signature, MainNet.messagePrefix);
+    return verify(message, address, signature, Util.readNetwork().messagePrefix);
   }
 }

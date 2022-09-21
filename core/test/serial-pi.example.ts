@@ -1,6 +1,6 @@
-import { exit } from "process";
-import { Serial } from "./services/serial";
-import { sleep } from "./services/util";
+import { exit } from 'process';
+import { Serial } from '../shared/communication/serial';
+import { Util } from '../shared/util';
 
 class App {
   private readonly serial: Serial;
@@ -10,12 +10,12 @@ class App {
   }
 
   async run(): Promise<void> {
-    await this.serial.open("/dev/serial0");
+    await this.serial.open('/dev/serial0');
     this.serial.onData(console.log);
 
-    while (true) {
-      await this.serial.send({ message: "Pi to Mac!", success: true, date: new Date() });
-      await sleep(1);
+    for (;;) {
+      await this.serial.send({ message: 'Pi to Mac!', success: true, date: new Date() });
+      await Util.sleep(1);
     }
 
     await this.serial.close();

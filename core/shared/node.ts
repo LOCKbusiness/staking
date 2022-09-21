@@ -3,14 +3,15 @@ import { ApiClient } from '@defichain/jellyfish-api-core';
 import { InWalletTransaction } from '@defichain/jellyfish-api-core/dist/category/wallet';
 import { MasternodeInfo } from '@defichain/jellyfish-api-core/dist/category/masternode';
 import { Util } from './util';
+import Config from './config';
 
 export class Node {
   private readonly client: ApiClient;
 
   private walletPassword?: string;
 
-  constructor(port: number = 8555) {
-    const passwordHash = Buffer.from(process.env.NODE_RPC_AUTH ?? '').toString('base64');
+  constructor(port = 8555) {
+    const passwordHash = Buffer.from(Config.node.auth).toString('base64');
     this.client = new JsonRpcClient(`http://127.0.0.1:${port}/`, {
       headers: { Authorization: 'Basic ' + passwordHash },
     });
@@ -50,6 +51,10 @@ export class Node {
 
   async getMasternodeInfo(id: string): Promise<MasternodeInfo> {
     return await this.client.masternode.getMasternode(id).then((r) => r[id]);
+  }
+
+  async signMessage(address: string, message: string): Promise<string> {
+    return this.unlockWallet().then(() => this.client.call('signmessage', [address, message], 'number'));
   }
 
   // --- HELPER METHODS --- //
