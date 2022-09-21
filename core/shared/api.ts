@@ -20,8 +20,27 @@ export class Api {
     return await this.callApi('masternode');
   }
 
+  async createMasternode(
+    id: number,
+    date: Date,
+    hash: string,
+    owner: string,
+    ownerWallet: string,
+    timeLock: number,
+  ): Promise<void> {
+    return await this.callApi(`masternode/${id}/create`, 'PUT', { date, hash, owner, ownerWallet, timeLock });
+  }
+
   async requestMasternodeResign(id: number, signature: string): Promise<void> {
-    return await this.callApi(`masternode/${id}/resign`, 'POST', { signature });
+    return await this.callApi(`masternode/${id}/requestResign`, 'PUT', { signature });
+  }
+
+  async resigningMasternode(id: number, date: Date, hash: string): Promise<void> {
+    return await this.callApi(`masternode/${id}/resign`, 'PUT', { date, hash });
+  }
+
+  async resignedMasternode(id: number): Promise<void> {
+    return await this.callApi(`masternode/${id}/resigned`, 'PUT');
   }
 
   // --- WITHDRAWALS --- //

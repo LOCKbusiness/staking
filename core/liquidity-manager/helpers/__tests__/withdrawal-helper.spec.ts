@@ -3,7 +3,7 @@ import { Node } from '../../../shared/node';
 import { Logger } from '../../../shared/logger';
 import { createMock } from '@golevelup/ts-jest';
 import { WithdrawalHelper } from '../withdrawal-helper';
-import { createDefaultLogger } from '../../../shared/__mocks__/locker.mock';
+import { createDefaultLogger } from '../../../shared/__mocks__/logger.mock';
 import { createCustomWithdrawal, createDefaultWithdrawal } from '../../../shared/dto/__mocks__/withdrawal.mock';
 import { InWalletTransaction } from '@defichain/jellyfish-api-core/dist/category/wallet';
 import Config from '../../../shared/config';

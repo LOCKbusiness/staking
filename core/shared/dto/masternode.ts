@@ -1,12 +1,17 @@
 export enum MasternodeState {
+  IDLE = 'Idle',
   CREATED = 'Created',
+  RESIGN_REQUESTED = 'ResignRequested',
+  RESIGN_CONFIRMED = 'ResignConfirmed',
   RESIGNING = 'Resigning',
-  // TBD
+  RESIGNED = 'Resigned',
 }
 
 export interface Masternode {
   id: number;
   state: MasternodeState;
-  creationHash: string;
-  // TBD
+  operator: string;
+
+  owner?: string;
+  creationHash?: string;
 }
