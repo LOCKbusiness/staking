@@ -32,7 +32,9 @@ export class LiquidityHelper {
     masternodes: Masternode[],
   ): Promise<number> {
     const resigningMasternodes = masternodes.filter((mn) =>
-      [MasternodeState.RESIGNING /* TODO: add other enum values */].includes(mn.state),
+      [MasternodeState.RESIGN_REQUESTED, MasternodeState.RESIGN_CONFIRMED, MasternodeState.RESIGNING].includes(
+        mn.state,
+      ),
     );
 
     const pendingResignAmount = resigningMasternodes.length * Config.masternode.collateral;
@@ -69,7 +71,9 @@ export class LiquidityHelper {
     }
   }
 
-  private async getMasternodeTms(masternodes: Masternode[]): Promise<(Masternode & { tm: number })[]> {
+  private async getMasternodeTms(
+    masternodes: Masternode[],
+  ): Promise<{ id: number; creationHash: string; tm: number }[]> {
     const runningMasternodes = masternodes.filter((mn) => mn.state === MasternodeState.CREATED);
     const masternodeInfos = await this.getMasternodeInfos(runningMasternodes);
     return masternodeInfos
@@ -78,12 +82,14 @@ export class LiquidityHelper {
       .sort((a, b) => (a.tm > b.tm ? 1 : -1));
   }
 
-  private async getMasternodeInfos(masternodes: Masternode[]): Promise<(Masternode & { info: MasternodeInfo })[]> {
+  private async getMasternodeInfos(
+    masternodes: Masternode[],
+  ): Promise<{ id: number; creationHash: string; info: MasternodeInfo }[]> {
     const infos = [];
     for (const masternode of masternodes) {
       if (masternode.creationHash) {
         const info = await this.node.getMasternodeInfo(masternode.creationHash);
-        infos.push({ ...masternode, info });
+        infos.push({ id: masternode.id, creationHash: masternode.creationHash, info });
       }
     }
 
