@@ -8,15 +8,12 @@
     <File name="MyFile" fileName="logs/payoutmanager.log" append="false">
       <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p [%t] %c{1}: %m%n" />
     </File>
-    
-    <ErrorLogAppender name="ErrorLogAppender" />
   </Appenders>
   
   <Loggers>
     <Root level="trace">
       <AppenderRef ref="MyConsole" />
       <AppenderRef ref="MyFile" />
-      <AppenderRef ref="ErrorLogAppender" level="error" />
     </Root>
   </Loggers>
 </Configuration>
