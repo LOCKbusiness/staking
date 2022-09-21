@@ -1,5 +1,9 @@
 package ch.dfx.lockbusiness.stakingbalances.ocean;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
@@ -17,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import ch.dfx.common.errorhandling.DfxException;
+import ch.dfx.lockbusiness.stakingbalances.ocean.data.ListTransactionsData;
 import ch.dfx.lockbusiness.stakingbalances.ocean.data.TransactionDetailVinData;
 import ch.dfx.lockbusiness.stakingbalances.ocean.data.TransactionDetailVoutData;
 import ch.dfx.lockbusiness.stakingbalances.ocean.data.TransactionsData;
@@ -32,6 +37,9 @@ public class OceanHandler {
   // ...
   private static final String OCEAN_URI = "https://ocean.defichain.com/v0/mainnet/address/";
   private static final int OCEAN_FETCH_SIZE = 200;
+
+  // ...
+  private BufferedWriter writer = null;
 
   // ...
   private final Gson gson;
@@ -73,6 +81,36 @@ public class OceanHandler {
   /**
    * 
    */
+  public void openWriter(File outputFile) throws DfxException {
+    try {
+      if (null == writer) {
+        writer = new BufferedWriter(new FileWriter(outputFile));
+        writer.append("{\"datalist\": [\n");
+      }
+    } catch (Exception e) {
+      throw new DfxException("openWriter", e);
+    }
+  }
+
+  /**
+   * 
+   */
+  public void closeWriter() {
+    try {
+      if (null != writer) {
+        writer.append("]}");
+        writer.flush();
+        writer.close();
+        writer = null;
+      }
+    } catch (Exception e) {
+      LOGGER.error("closeWriter", e);
+    }
+  }
+
+  /**
+   * 
+   */
   public String webcall(String next) throws DfxException {
     try {
       StringBuilder oceanURIBuilder = new StringBuilder()
@@ -94,7 +132,20 @@ public class OceanHandler {
 
       String jsonResponse = EntityUtils.toString(httpEntity);
 
-      return analyzeTransactions(gson.fromJson(jsonResponse, TransactionsData.class));
+      TransactionsData transactionsData = gson.fromJson(jsonResponse, TransactionsData.class);
+
+      // ...
+      if (null != writer) {
+        writer.append(transactionsData.toString());
+
+        if (null != transactionsData.getPage()) {
+          writer.append(",");
+        }
+
+        writer.append("\n");
+      }
+
+      return analyzeTransactions(transactionsData);
     } catch (Exception e) {
       throw new DfxException("error", e);
     }
@@ -103,7 +154,26 @@ public class OceanHandler {
   /**
    * 
    */
-  private String analyzeTransactions(TransactionsData transactionsData) {
+  public ListTransactionsData readFromFile(File jsonFile) throws DfxException {
+    try {
+      ListTransactionsData transactionsDataList = gson.fromJson(new FileReader(jsonFile), ListTransactionsData.class);
+
+      for (TransactionsData transactionsData : transactionsDataList.getDatalist()) {
+        analyzeTransactions(transactionsData);
+      }
+
+      return transactionsDataList;
+    } catch (DfxException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new DfxException("readFromFile", e);
+    }
+  }
+
+  /**
+   * 
+   */
+  private String analyzeTransactions(TransactionsData transactionsData) throws DfxException {
     List<TransactionsDetailData> transactionsDetailDataList = transactionsData.getData();
 
     for (TransactionsDetailData transactionsDetailData : transactionsDetailDataList) {
@@ -116,10 +186,10 @@ public class OceanHandler {
         } else if (null != transactionDetailVoutData) {
           voutBalance = voutBalance.add(transactionsDetailData.getValue());
         } else {
-          LOGGER.error("no vin and vout found...");
+          throw new DfxException("no vin and vout found...");
         }
       } else {
-        LOGGER.error("unknown token ...");
+        throw new DfxException("unknown token ...");
       }
     }
 
