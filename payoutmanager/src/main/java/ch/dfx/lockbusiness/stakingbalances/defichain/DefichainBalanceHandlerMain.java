@@ -13,7 +13,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.dfx.common.PayoutManagerUtils;
+import ch.dfx.common.enumeration.PropertyEnum;
 import ch.dfx.common.errorhandling.DfxException;
+import ch.dfx.common.provider.ConfigPropertyProvider;
 import ch.dfx.defichain.data.DefiListAccountHistoryData;
 import ch.dfx.defichain.data.transaction.DefiTransactionVinData;
 import ch.dfx.defichain.provider.DefiDataProvider;
@@ -45,8 +47,12 @@ public class DefichainBalanceHandlerMain {
       LOGGER.debug("Test Address: " + testAddress);
 
       // ...
+      String walletName = ConfigPropertyProvider.getInstance().getProperty(PropertyEnum.DFI_WALLET_NAME);
+      LOGGER.debug("Wallet Name: " + walletName);
+
+      // ...
       List<DefiListAccountHistoryData> accountHistoryDataList =
-          dataProvider.listAccountHistory("DFX-Wallet", testAddress, blockCount, 1l);
+          dataProvider.listAccountHistory(walletName, testAddress, blockCount, 1l);
 
       DefiListAccountHistoryData accountHistoryData = accountHistoryDataList.get(0);
 
