@@ -16,4 +16,6 @@ export interface RequestApiPayload {
   body?: string;
 }
 
-export interface TestPayload {}
+export interface TestPayload {
+  txHex: string;
+}
