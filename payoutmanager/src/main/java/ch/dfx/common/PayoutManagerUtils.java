@@ -42,9 +42,10 @@ public class PayoutManagerUtils {
   public static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00000000");
 
   // ...
-  private static final Gson GSON = new GsonBuilder()
-      .setPrettyPrinting()
-      .create();
+  private static final Gson GSON =
+      new GsonBuilder()
+          .setPrettyPrinting()
+          .create();
 
   // ...
   private static final EnvironmentEnum ENVIRONMENT;
@@ -106,16 +107,36 @@ public class PayoutManagerUtils {
       throw new DfxException("loading 'config.properties': unknown environment");
     }
 
+    Properties properties = new Properties();
+
+    // Environment specific properties ...
     LOGGER.trace("configFileName: '" + configFileName + "'...");
 
     try (FileInputStream inputStream = new FileInputStream(configFileName)) {
-      Properties properties = new Properties();
       properties.load(inputStream);
+    } catch (Exception e) {
+      throw new DfxException("loading '" + configFileName + "' ...", e);
+    }
 
-      ConfigPropertyProvider.setup(properties);
+    // Global Properties ...
+    LOGGER.trace("configFileName: '" + "config.properties" + "'...");
+
+    try (FileInputStream inputStream = new FileInputStream("config.properties")) {
+      properties.load(inputStream);
     } catch (Exception e) {
       throw new DfxException("loading 'config.properties' ...", e);
     }
+
+    // Secret Properties ...
+    LOGGER.trace("configFileName: '" + "secret.properties" + "'...");
+
+    try (FileInputStream inputStream = new FileInputStream("secret.properties")) {
+      properties.load(inputStream);
+    } catch (Exception e) {
+      // Intentionally left blank ...
+    }
+
+    ConfigPropertyProvider.setup(properties);
   }
 
   /**
