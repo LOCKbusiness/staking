@@ -21,15 +21,18 @@ export class MasternodeCommunication extends BaseServerCommunication {
     this.createTxBasedOnOperation = func;
   }
 
-  async onDataReceived(data: any): Promise<Message> {
+  async onDataReceived(data: any): Promise<[boolean, Message]> {
     const message = JSON.parse(String(data)) as Message;
-    this.logger.info('received', message.operation);
-    if (message.payload != null) {
-      this.logger.info(' and', message.payload);
+    if (message.operation === Operation.REQUEST_API) {
+      this.logger.info('request-api responded with\n', message.payload);
+      return [false, message];
     }
-    return {
-      ...message,
-      payload: { txHex: await this.createTxBasedOnOperation?.(message.operation, message.payload) },
-    };
+    return [
+      true,
+      {
+        ...message,
+        payload: { txHex: await this.createTxBasedOnOperation?.(message.operation, message.payload) },
+      },
+    ];
   }
 }
