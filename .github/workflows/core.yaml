@@ -10,8 +10,8 @@ env:
   DIRECTORY: "./core"
 
 jobs:
-  build-and-test:
-    name: Build and test
+  test:
+    name: Test and lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,11 +25,6 @@ jobs:
       - name: Install packages
         run: |
           npm ci
-        working-directory: ${{ env.DIRECTORY }}
-
-      - name: Build code
-        run: |
-          npm run build
         working-directory: ${{ env.DIRECTORY }}
 
       - name: Run tests
