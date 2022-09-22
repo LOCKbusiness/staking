@@ -1,25 +1,21 @@
 import GPIO from 'rpi-gpio';
-import { debounceTime, filter, map, Subject, switchMap } from 'rxjs';
+import { debounceTime, filter, map, pairwise, Subject, switchMap } from 'rxjs';
 
 export class Keypad {
   private readonly gpio = GPIO.promise;
 
-  private readonly rowPins = [1, 2, 3, 4]; // TODO: select pins
-  private readonly colPins = [5, 6, 7];
+  private readonly rowPins = [13, 22, 18, 12];
+  private readonly colPins = [11, 15, 16];
   private readonly keys = [
     ['1', '2', '3'],
-    ['4', '5', '5'],
+    ['4', '5', '6'],
     ['7', '8', '9'],
     ['*', '0', '#'],
   ];
 
   private readonly $change = new Subject<boolean>();
 
-  private readInProgress = false;
-
   async connect() {
-    // TODO: verify if pull up or down
-
     // setup all row pins as inputs
     for (const pin of this.rowPins) {
       await this.gpio.setup(pin, 'in', 'rising');
@@ -39,18 +35,15 @@ export class Keypad {
   }
 
   readonly onKeyPress = this.$change.pipe(
-    debounceTime(10),
+    debounceTime(25),
     switchMap(() => this.readKey()),
-    filter((v) => v != null),
-    map((v) => v as string),
+    pairwise(),
+    filter(([prev, curr]) => curr != null && curr !== prev),
+    map(([_, curr]) => curr),
   );
 
   // --- HELPER METHODS --- //
   private async readKey(): Promise<string | undefined> {
-    // readInProgress can be removed?
-    if (this.readInProgress) return;
-    this.readInProgress = true;
-
     // find the active key
     let activeKey: string | undefined = undefined;
     for (let i = 0; i < this.colPins.length; i++) {
@@ -58,7 +51,7 @@ export class Keypad {
 
       // enable col
       for (const pin of this.colPins) {
-        await this.gpio.write(colPin, colPin === pin);
+        await this.gpio.write(pin, colPin === pin);
       }
 
       // read row
@@ -66,7 +59,7 @@ export class Keypad {
         const rowPin = this.rowPins[j];
 
         const isActive = await this.gpio.read(rowPin);
-        if (isActive) activeKey = this.keys[i][j];
+        if (isActive) activeKey = this.keys[j][i];
       }
     }
 
@@ -74,8 +67,6 @@ export class Keypad {
     for (const pin of this.colPins) {
       await this.gpio.write(pin, true);
     }
-
-    this.readInProgress = false;
 
     return activeKey;
   }
