@@ -13,13 +13,22 @@ const staticPathsToResponse: { [path: string]: string } = {
 };
 const forwardPaths = ['transactions/unspent'];
 
+export enum Action {
+  REQUEST,
+}
+
+type Subscriber = (url: string, body?: string) => Promise<ResponseAsString>;
+
 export class ColdWalletClient extends WhaleApiClient {
   private readonly logger = new Logger('Cold Wallet Client');
+  private readonly subscribers = new Map<Action, Subscriber>();
 
-  private forwardRequest?: (url: string, body?: string) => Promise<ResponseAsString>;
+  on(action: Action, subscriber: Subscriber) {
+    this.subscribers.set(action, subscriber);
+  }
 
-  setForwardRequest(func: (url: string, body?: string) => Promise<ResponseAsString>) {
-    this.forwardRequest = func;
+  remove(action: Action): boolean {
+    return this.subscribers.delete(action);
   }
 
   paginate<T>(response: ApiPagedResponse<T>): Promise<ApiPagedResponse<T>> {
@@ -75,7 +84,8 @@ export class ColdWalletClient extends WhaleApiClient {
     if (this.shouldForward(cleanedPath)) {
       this.logger.info('forward', cleanedPath);
       const url = this.buildUrl(path);
-      response = await this.forwardRequest?.(url, body);
+      const request = this.subscribers.get(Action.REQUEST);
+      response = await request?.(url, body);
     }
     this.logger.debug('requestAsString\n', response);
     return response as ResponseAsString;
