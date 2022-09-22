@@ -8,10 +8,11 @@ export abstract class BaseSerialCommunication extends BaseCommunication {
   constructor(timeout: number = 5) {
     super(timeout);
     this.serial = new Serial();
-    this.serial.onData((data: Message) => this.onResponse(data));
+    this.serial.onData(async (data: Message) => await this.onMessageReceived(data));
   }
 
   abstract getPath(): string;
+  abstract actOn(message: Message): Promise<Message | undefined>;
 
   connect(): Promise<void> {
     return this.serial.open(this.getPath());
