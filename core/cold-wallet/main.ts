@@ -40,7 +40,7 @@ class App {
     await this.communication.connect();
 
     try {
-      while (true) {
+      for (;;) {
         await Util.sleep(1);
       }
     } catch (e) {

@@ -14,7 +14,7 @@ export abstract class BaseCommunication {
   abstract send(message: Message): Promise<void>;
   abstract actOn(message: Message): Promise<Message | undefined>;
 
-  async query<T, U>(operation: Operation, payload: T): Promise<U> {
+  async query<T, U>(operation: Operation, payload?: T): Promise<U> {
     const message: Message = {
       id: randomUUID(),
       operation: operation,

@@ -11,23 +11,22 @@ import { Operation } from '../../shared/communication/operation';
 // }
 
 export class ManagerCommunication extends BaseServerCommunication {
-  private createTxBasedOnOperation?: (operation: Operation, payload: any) => Promise<string>;
+  private createTxBasedOnOperation?: (operation: Operation, payload?: any) => Promise<string>;
 
   listenOnPort(): number {
     return 9000;
   }
 
-  setCreateTx(func: (operation: Operation, payload: any) => Promise<string>) {
+  setCreateTx(func: (operation: Operation, payload?: any) => Promise<string>) {
     this.createTxBasedOnOperation = func;
   }
 
   async actOn(message: Message): Promise<Message | undefined> {
     switch (message.operation) {
       case Operation.TEST:
-        const txHex = await this.createTxBasedOnOperation?.(message.operation, message.payload);
         return {
           ...message,
-          payload: { txHex },
+          payload: { txHex: await this.createTxBasedOnOperation?.(message.operation, message.payload) },
         };
       default:
         return undefined;

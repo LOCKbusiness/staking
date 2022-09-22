@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 // import { BaseSerialCommunication } from '../shared/communication/base-serial-communication';
 import { BaseSocketCommunication } from '../shared/communication/base-socket-communication';
 import fetch from 'cross-fetch';

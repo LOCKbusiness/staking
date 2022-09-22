@@ -5,17 +5,11 @@ export enum Operation {
   TEST = 'test',
 }
 
-export type OperationPayload = CreateMasternodePayload | ResignMasternodePayload | RequestApiPayload | TestPayload;
-
-export interface CreateMasternodePayload {}
-
-export interface ResignMasternodePayload {}
-
 export interface RequestApiPayload {
   url: string;
   body?: string;
 }
 
 export interface TestPayload {
-  txHex: string;
+  txHex?: string;
 }

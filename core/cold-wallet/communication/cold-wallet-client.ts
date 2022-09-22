@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   ApiPagedResponse,
   Method,
@@ -101,7 +102,7 @@ export class ColdWalletClient extends WhaleApiClient {
   }
 
   private buildUrl(path: string): string {
-    const { url: urlString, version, network, timeout } = this.options;
+    const { url: urlString, version, network } = this.options;
     return `${urlString as string}/${version as string}/${network as string}/${path}`;
   }
 }
