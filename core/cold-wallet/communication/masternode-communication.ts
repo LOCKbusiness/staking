@@ -24,7 +24,7 @@ export class MasternodeCommunication extends BaseServerCommunication {
   async onDataReceived(data: any): Promise<[boolean, Message]> {
     const message = JSON.parse(String(data)) as Message;
     if (message.operation === Operation.REQUEST_API) {
-      this.logger.info('request-api responded with\n', message.payload);
+      this.logger.debug('request-api responded with\n', message.payload);
       return [false, message];
     }
     return [
