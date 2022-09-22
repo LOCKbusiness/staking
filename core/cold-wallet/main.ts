@@ -3,7 +3,7 @@ import { Operation } from '../shared/communication/operation';
 import Config from '../shared/config';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
-import { ColdWalletClient } from './communication/cold-wallet-client';
+import { Action, ColdWalletClient } from './communication/cold-wallet-client';
 import { ManagerCommunication } from './communication/manager-communication';
 import { WalletHelper } from './wallet/wallet-helper';
 
@@ -23,7 +23,7 @@ class App {
       network: Util.readNetwork().name,
     });
 
-    client.setForwardRequest((url, body) => {
+    client.on(Action.REQUEST, (url, body) => {
       this.logger.debug('forwarding', { url, body });
       return this.communication.query(Operation.REQUEST_API, { url, body });
     });
