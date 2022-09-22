@@ -12,7 +12,6 @@ export abstract class BaseSerialCommunication extends BaseCommunication {
   }
 
   abstract getPath(): string;
-  abstract actOn(message: Message): Promise<Message | undefined>;
 
   connect(): Promise<void> {
     return this.serial.open(this.getPath());

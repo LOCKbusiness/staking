@@ -17,7 +17,6 @@ export abstract class BaseServerCommunication extends BaseCommunication {
   }
 
   abstract listenOnPort(): number;
-  abstract actOn(message: Message): Promise<Message | undefined>;
 
   async connect(): Promise<void> {
     this.logger.info('listening on', this.listenOnPort());
