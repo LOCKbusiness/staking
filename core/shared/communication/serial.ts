@@ -1,13 +1,15 @@
 import { SerialPort } from 'serialport';
 import { Util } from '../util';
+import { Message } from './message';
 
 export class Serial {
   private serial: SerialPort = {} as SerialPort;
-  private data: string = '';
+  private data = '';
 
-  open(path: string, baudRate: number = 115200): Promise<void> {
+  open(path: string, baudRate = 115200): Promise<void> {
     this.serial = new SerialPort({ path, baudRate });
 
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       for (let i = 0; i < 10 && !this.serial.isOpen; i++) {
         await Util.sleep(0.1);
@@ -16,7 +18,7 @@ export class Serial {
     });
   }
 
-  send(message: any): Promise<void> {
+  send(message: Message): Promise<void> {
     return new Promise((resolve, reject) => {
       this.serial.write(JSON.stringify(message) + '\n', 'utf8', (e) => (e ? reject(e) : resolve()));
     });

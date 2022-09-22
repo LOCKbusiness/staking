@@ -2,9 +2,6 @@ import { Socket } from 'net';
 import { Logger } from '../logger';
 import { BaseCommunication } from './base-communication';
 import { Message } from './message';
-import { Operation } from './operation';
-
-const operationToAnswer = [Operation.REQUEST_API];
 
 export abstract class BaseSocketCommunication extends BaseCommunication {
   private readonly logger = new Logger('Socket Comm');

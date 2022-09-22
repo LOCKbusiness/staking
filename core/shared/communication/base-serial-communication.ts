@@ -5,7 +5,7 @@ import { Serial } from './serial';
 export abstract class BaseSerialCommunication extends BaseCommunication {
   private readonly serial: Serial;
 
-  constructor(timeout: number = 5) {
+  constructor(timeout = 5) {
     super(timeout);
     this.serial = new Serial();
     this.serial.onData(async (data: Message) => await this.onMessageReceived(data));

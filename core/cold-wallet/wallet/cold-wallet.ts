@@ -33,6 +33,8 @@ export class ColdWallet {
     if (!this.checkPrerequisites()) throw new Error('Seed is invalid');
     this.wallet = new JellyfishWallet(
       MnemonicHdNodeProvider.fromWords(this.seed, this.bip32OptionsBasedOn(this.network)),
+      // client null check is already within checkPrerequisites()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       new WhaleWalletAccountProvider(this.client!, this.network),
       JellyfishWallet.COIN_TYPE_DFI,
       JellyfishWallet.PURPOSE_LIGHT_MASTERNODE,
@@ -45,6 +47,8 @@ export class ColdWallet {
   }
 
   public async createTx(operation: Operation, payload: any): Promise<string> {
+    this.logger.debug('', operation);
+    this.logger.debug('', payload);
     const [script, builder] = await this.getTxFoundation();
     const tx = await builder.account.utxosToAccount(
       {
@@ -65,7 +69,7 @@ export class ColdWallet {
     return new CTransactionSegWit(tx).toHex();
   }
 
-  private async getTxFoundation(accountIndex: number = 0): Promise<[Script, P2WPKHTransactionBuilder]> {
+  private async getTxFoundation(accountIndex = 0): Promise<[Script, P2WPKHTransactionBuilder]> {
     if (!this.wallet) throw new Error('Wallet is not initialized');
     const account = this.wallet.get(accountIndex);
     return [await account.getScript(), account.withTransactionBuilder()];
