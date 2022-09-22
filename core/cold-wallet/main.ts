@@ -24,7 +24,7 @@ class App {
     });
 
     client.setForwardRequest((url, body) => {
-      this.logger.info('forwarding', { url, body });
+      this.logger.debug('forwarding', { url, body });
       return this.communication.query(Operation.REQUEST_API, { url, body });
     });
 

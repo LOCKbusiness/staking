@@ -45,7 +45,6 @@ export class ColdWallet {
   }
 
   public async createTx(operation: Operation, payload: any): Promise<string> {
-    if (!this.wallet) throw new Error('Wallet is not initialized');
     const [script, builder] = await this.getTxFoundation();
     const tx = await builder.account.utxosToAccount(
       {
@@ -68,7 +67,7 @@ export class ColdWallet {
 
   private async getTxFoundation(accountIndex: number = 0): Promise<[Script, P2WPKHTransactionBuilder]> {
     if (!this.wallet) throw new Error('Wallet is not initialized');
-    const account = this.wallet?.get(accountIndex);
+    const account = this.wallet.get(accountIndex);
     return [await account.getScript(), account.withTransactionBuilder()];
   }
 

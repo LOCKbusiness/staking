@@ -14,7 +14,6 @@ const forwardPaths = ['transactions/unspent'];
 
 export class ColdWalletClient extends WhaleApiClient {
   private readonly logger = new Logger('Cold Wallet Client');
-  private readonly isDebugLog = false;
 
   private forwardRequest?: (url: string, body?: string) => Promise<ResponseAsString>;
 
@@ -23,7 +22,7 @@ export class ColdWalletClient extends WhaleApiClient {
   }
 
   paginate<T>(response: ApiPagedResponse<T>): Promise<ApiPagedResponse<T>> {
-    if (this.isDebugLog) this.logger.info('paginate');
+    this.logger.debug('paginate');
     return super.paginate(response);
   }
 
@@ -32,9 +31,9 @@ export class ColdWalletClient extends WhaleApiClient {
       this.logger.warning('attempt a POST', path);
       return Promise.reject();
     }
-    if (this.isDebugLog) this.logger.info('requestData\n', { method, path, object });
+    this.logger.debug('requestData\n', { method, path, object });
     const response = await super.requestData(method, path, object);
-    if (this.isDebugLog) this.logger.info('requestData\n', response);
+    this.logger.debug('requestData\n', response);
     return response as T;
   }
 
@@ -48,21 +47,21 @@ export class ColdWalletClient extends WhaleApiClient {
       this.logger.warning('attempt a POST', path);
       return Promise.reject();
     }
-    if (this.isDebugLog) this.logger.info('requestList\n', { method, path, size, next });
+    this.logger.debug('requestList\n', { method, path, size, next });
     const response = await super.requestList(method, path, size, next);
-    if (this.isDebugLog) this.logger.info('requestList\n', response);
+    this.logger.debug('requestList\n', response);
     return response as ApiPagedResponse<T>;
   }
 
   async requestAsApiResponse<T>(method: Method, path: string, object?: any): Promise<WhaleApiResponse<T>> {
-    if (this.isDebugLog) this.logger.info('requestAsApiResponse\n', { method, path, object });
+    this.logger.debug('requestAsApiResponse\n', { method, path, object });
     const response = await super.requestAsApiResponse(method, path, object);
-    if (this.isDebugLog) this.logger.info('requestAsApiResponse\n', response);
+    this.logger.debug('requestAsApiResponse\n', response);
     return response as WhaleApiResponse<T>;
   }
 
   async requestAsString(method: Method, path: string, body?: string | undefined): Promise<ResponseAsString> {
-    if (this.isDebugLog) this.logger.info('requestAsString\n', { method, path, body });
+    this.logger.debug('requestAsString\n', { method, path, body });
     // set response to default reject
     let response;
     const cleanedPath = this.cleanQueryParams(path);
@@ -77,7 +76,7 @@ export class ColdWalletClient extends WhaleApiClient {
       const url = this.buildUrl(path);
       response = await this.forwardRequest?.(url, body);
     }
-    if (this.isDebugLog) this.logger.info('requestAsString\n', response);
+    this.logger.debug('requestAsString\n', response);
     return response as ResponseAsString;
   }
 

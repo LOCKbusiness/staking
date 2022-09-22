@@ -20,7 +20,7 @@ export abstract class BaseSocketCommunication extends BaseCommunication {
     this.socketToServer.connect(this.connectToPort());
     this.socketToServer.addListener('data', async (data) => {
       const message = JSON.parse(String(data)) as Message;
-      this.logger.info('received', message);
+      this.logger.debug('received', message);
       if (operationToAnswer.includes(message.operation)) {
         const answer = await this.receivedMessage(message);
         await this.send(answer);
@@ -37,7 +37,7 @@ export abstract class BaseSocketCommunication extends BaseCommunication {
   }
 
   async send(message: Message): Promise<void> {
-    this.logger.info('sending\n', message);
+    this.logger.debug('sending\n', message);
     this.socketToServer?.write(JSON.stringify(message));
   }
 }

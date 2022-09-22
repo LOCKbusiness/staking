@@ -24,7 +24,7 @@ class App {
   async run(): Promise<void> {
     await this.communication.connect();
     const message = (await this.communication.query(Operation.TEST, undefined)) as TestPayload;
-    await this.client.rawtx.send({ hex: message.txHex });
+    // await this.client.rawtx.send({ hex: message.txHex });
 
     try {
       while (true) {
