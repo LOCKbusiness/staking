@@ -17,7 +17,7 @@ export abstract class BaseServerCommunication extends BaseCommunication {
   }
 
   abstract listenOnPort(): number;
-  abstract onDataReceived(data: any): Promise<[boolean, Message]>;
+  abstract actOn(message: Message): Promise<Message | undefined>;
 
   async connect(): Promise<void> {
     this.logger.info('listening on', this.listenOnPort());
@@ -38,9 +38,7 @@ export abstract class BaseServerCommunication extends BaseCommunication {
   private onSocketConnected(socket: Socket) {
     this.logger.info('socket connected');
     socket.addListener('data', async (data) => {
-      const [shouldSend, message] = await this.onDataReceived(data);
-      if (shouldSend) this.send(message);
-      else this.onResponse(message);
+      await this.onMessageReceived(JSON.parse(String(data)) as Message);
     });
     this.connectedSocket = socket;
   }

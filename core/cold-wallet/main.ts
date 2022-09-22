@@ -4,15 +4,15 @@ import Config from '../shared/config';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
 import { ColdWalletClient } from './communication/cold-wallet-client';
-import { MasternodeCommunication } from './communication/masternode-communication';
+import { ManagerCommunication } from './communication/manager-communication';
 import { WalletHelper } from './wallet/wallet-helper';
 
 class App {
-  private readonly communication: MasternodeCommunication;
+  private readonly communication: ManagerCommunication;
   private readonly logger: Logger;
 
   constructor() {
-    this.communication = new MasternodeCommunication();
+    this.communication = new ManagerCommunication();
     this.logger = new Logger('Cold Wallet');
   }
 

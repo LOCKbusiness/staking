@@ -12,6 +12,7 @@ export abstract class BaseCommunication {
   abstract connect(): Promise<void>;
   abstract disconnect(): Promise<void>;
   abstract send(message: Message): Promise<void>;
+  abstract actOn(message: Message): Promise<Message | undefined>;
 
   async query<T, U>(operation: Operation, payload: T): Promise<U> {
     const message: Message = {
@@ -32,7 +33,16 @@ export abstract class BaseCommunication {
     });
   }
 
-  protected onResponse(message: Message): void {
+  protected async onMessageReceived(message: Message): Promise<void> {
+    const answer = await this.actOn(message);
+    if (answer) {
+      await this.send(answer);
+    } else {
+      this.onResponse(message);
+    }
+  }
+
+  private onResponse(message: Message): void {
     const request = this.requests.get(message.id);
     if (!request) return console.error('Received unmatched response', message);
 

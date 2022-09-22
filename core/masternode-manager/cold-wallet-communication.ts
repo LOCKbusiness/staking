@@ -16,14 +16,14 @@ export class ColdWalletCommunication extends BaseSocketCommunication {
     return 9000;
   }
 
-  async receivedMessage(message: Message): Promise<Message> {
+  async actOn(message: Message): Promise<Message | undefined> {
     switch (message.operation) {
       case Operation.REQUEST_API:
         const payload = message.payload as RequestApiPayload;
         const response = await _fetch('GET', payload.url, payload.body);
         return { ...message, payload: response };
       default:
-        return Promise.reject();
+        return undefined;
     }
   }
 }

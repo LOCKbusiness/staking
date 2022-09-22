@@ -4,13 +4,13 @@ import { BaseServerCommunication } from '../../shared/communication/base-server-
 import { Message } from '../../shared/communication/message';
 import { Operation } from '../../shared/communication/operation';
 
-// export class MasternodeCommunication extends BaseSerialCommunication {
+// export class ManagerCommunication extends BaseSerialCommunication {
 //   getPath(): string {
 //     return '/dev/serial0';
 //   }
 // }
 
-export class MasternodeCommunication extends BaseServerCommunication {
+export class ManagerCommunication extends BaseServerCommunication {
   private createTxBasedOnOperation?: (operation: Operation, payload: any) => Promise<string>;
 
   listenOnPort(): number {
@@ -21,18 +21,16 @@ export class MasternodeCommunication extends BaseServerCommunication {
     this.createTxBasedOnOperation = func;
   }
 
-  async onDataReceived(data: any): Promise<[boolean, Message]> {
-    const message = JSON.parse(String(data)) as Message;
-    if (message.operation === Operation.REQUEST_API) {
-      this.logger.debug('request-api responded with\n', message.payload);
-      return [false, message];
+  async actOn(message: Message): Promise<Message | undefined> {
+    switch (message.operation) {
+      case Operation.TEST:
+        const txHex = await this.createTxBasedOnOperation?.(message.operation, message.payload);
+        return {
+          ...message,
+          payload: { txHex },
+        };
+      default:
+        return undefined;
     }
-    return [
-      true,
-      {
-        ...message,
-        payload: { txHex: await this.createTxBasedOnOperation?.(message.operation, message.payload) },
-      },
-    ];
   }
 }
