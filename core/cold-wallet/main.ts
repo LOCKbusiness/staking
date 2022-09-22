@@ -33,8 +33,11 @@ class App {
     wallet.initialize();
     this.logger.info(await wallet.getAddress());
 
-    this.communication.setCreateTx((operation, payload) => {
-      return wallet.createTx(operation, payload);
+    this.communication.on(Operation.TEST, async (message) => {
+      return {
+        ...message,
+        payload: { txHex: await wallet.createTx(message.operation, message.payload) },
+      };
     });
 
     await this.communication.connect();

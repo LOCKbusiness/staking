@@ -9,7 +9,6 @@ export abstract class BaseSocketCommunication extends BaseCommunication {
   private socketToServer?: Socket;
 
   abstract connectToPort(): number;
-  abstract actOn(message: Message): Promise<Message | undefined>;
 
   async connect(): Promise<void> {
     this.logger.info('trying to connect to', this.connectToPort());

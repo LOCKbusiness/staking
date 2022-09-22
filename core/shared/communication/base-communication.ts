@@ -2,17 +2,28 @@ import { randomUUID } from 'crypto';
 import { Message } from './message';
 import { Operation } from './operation';
 
+type Subscriber = (message: Message) => Promise<Message | undefined>;
+
 export abstract class BaseCommunication {
   private readonly requests: Map<string, Message & { completed: (response: any) => void }>;
+  private readonly subscribers: Map<Operation, Subscriber>;
 
   constructor(private readonly timeout: number = 5) {
     this.requests = new Map();
+    this.subscribers = new Map();
   }
 
   abstract connect(): Promise<void>;
   abstract disconnect(): Promise<void>;
   abstract send(message: Message): Promise<void>;
-  abstract actOn(message: Message): Promise<Message | undefined>;
+
+  on(operation: Operation, subscriber: Subscriber) {
+    this.subscribers.set(operation, subscriber);
+  }
+
+  remove(operation: Operation): boolean {
+    return this.subscribers.delete(operation);
+  }
 
   async query<T, U>(operation: Operation, payload?: T): Promise<U> {
     const message: Message = {
@@ -34,7 +45,8 @@ export abstract class BaseCommunication {
   }
 
   protected async onMessageReceived(message: Message): Promise<void> {
-    const answer = await this.actOn(message);
+    const actOn = this.subscribers.get(message.operation);
+    const answer = await actOn?.(message);
     if (answer) {
       await this.send(answer);
     } else {
