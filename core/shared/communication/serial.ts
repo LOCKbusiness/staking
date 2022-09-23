@@ -6,16 +6,14 @@ export class Serial {
   private serial: SerialPort = {} as SerialPort;
   private data = '';
 
-  open(path: string, baudRate = 115200): Promise<void> {
+  async open(path: string, baudRate = 115200): Promise<void> {
     this.serial = new SerialPort({ path, baudRate });
 
-    // eslint-disable-next-line no-async-promise-executor
-    return new Promise(async (resolve, reject) => {
-      for (let i = 0; i < 10 && !this.serial.isOpen; i++) {
-        await Util.sleep(0.1);
-      }
-      return this.serial.isOpen ? resolve() : reject(new Error('Failed to open serial port'));
-    });
+    for (let i = 0; i < 10 && !this.serial.isOpen; i++) {
+      await Util.sleep(0.1);
+    }
+
+    if (!this.serial.isOpen) throw new Error('Failed to open serial port');
   }
 
   send(message: Message): Promise<void> {

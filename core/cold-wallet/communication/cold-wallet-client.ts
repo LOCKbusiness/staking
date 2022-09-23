@@ -14,7 +14,7 @@ const staticPathsToResponse: { [path: string]: string } = {
 const forwardPaths = ['transactions/unspent'];
 
 export enum Action {
-  REQUEST,
+  REQUEST_OCEAN,
 }
 
 type Subscriber = (url: string, body?: string) => Promise<ResponseAsString>;
@@ -84,7 +84,7 @@ export class ColdWalletClient extends WhaleApiClient {
     if (this.shouldForward(cleanedPath)) {
       this.logger.info('forward', cleanedPath);
       const url = this.buildUrl(path);
-      const request = this.subscribers.get(Action.REQUEST);
+      const request = this.subscribers.get(Action.REQUEST_OCEAN);
       response = await request?.(url, body);
     }
     this.logger.debug('requestAsString\n', response);
