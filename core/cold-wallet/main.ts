@@ -23,7 +23,7 @@ class App {
       network: Util.readNetwork().name,
     });
 
-    client.on(Action.REQUEST, (url, body) => {
+    client.on(Action.REQUEST_OCEAN, (url, body) => {
       this.logger.debug('forwarding', { url, body });
       return this.communication.query(Operation.REQUEST_API, { url, body });
     });
@@ -33,12 +33,7 @@ class App {
     wallet.initialize();
     this.logger.info(await wallet.getAddress());
 
-    this.communication.on(Operation.TEST, async (message) => {
-      return {
-        ...message,
-        payload: { txHex: await wallet.createTx(message.operation, message.payload) },
-      };
-    });
+    this.communication.on(Operation.TEST, (data) => wallet.createTx(Operation.TEST, data));
 
     await this.communication.connect();
 

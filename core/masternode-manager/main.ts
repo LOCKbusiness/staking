@@ -25,14 +25,10 @@ class App {
   async run(): Promise<void> {
     await this.communication.connect();
 
-    this.communication.on(Operation.REQUEST_API, async (message) => {
-      const payload = message.payload as RequestApiPayload;
-      const response = await _fetch('GET', payload.url, payload.body);
-      return { ...message, payload: response };
-    });
-    const message = (await this.communication.query(Operation.TEST)) as TestPayload;
-    this.logger.info('received tx', message.txHex);
-    // await this.client.rawtx.send({ hex: message.txHex });
+    this.communication.on(Operation.REQUEST_API, (data: RequestApiPayload) => _fetch('GET', data.url, data.body));
+    const hex = await this.communication.query(Operation.TEST);
+    this.logger.info('received tx', hex);
+    // await this.client.rawtx.send({ hex });
 
     try {
       for (;;) {

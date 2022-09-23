@@ -2,10 +2,11 @@ import { randomUUID } from 'crypto';
 import { Message } from './message';
 import { Operation } from './operation';
 
-type Subscriber = (message: Message) => Promise<Message | undefined>;
+type Subscriber = (payload: any) => Promise<any>;
+type Request = Message & { completed: (response: any) => void };
 
 export abstract class BaseCommunication {
-  private readonly requests: Map<string, Message & { completed: (response: any) => void }>;
+  private readonly requests: Map<string, Request>;
   private readonly subscribers: Map<Operation, Subscriber>;
 
   constructor(private readonly timeout: number = 5) {
@@ -45,19 +46,19 @@ export abstract class BaseCommunication {
   }
 
   protected async onMessageReceived(message: Message): Promise<void> {
-    const actOn = this.subscribers.get(message.operation);
-    const answer = await actOn?.(message);
-    if (answer) {
-      await this.send(answer);
+    const request = this.requests.get(message.id);
+    if (request) {
+      this.onResponse(message, request);
     } else {
-      this.onResponse(message);
+      const actOn = this.subscribers.get(message.operation);
+      const payload = await actOn?.(message.payload);
+      if (payload) {
+        await this.send({ ...message, payload });
+      }
     }
   }
 
-  private onResponse(message: Message): void {
-    const request = this.requests.get(message.id);
-    if (!request) return console.error('Received unmatched response', message);
-
+  private onResponse(message: Message, request: Request): void {
     request.completed(message.payload);
     this.requests.delete(message.id);
   }
