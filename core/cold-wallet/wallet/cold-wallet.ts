@@ -17,7 +17,6 @@ export class ColdWallet {
   private readonly logger: Logger;
 
   private wallet?: JellyfishWallet<WhaleWalletAccount, WalletHdNode>;
-  private client?: WhaleApiClient;
 
   constructor(seed: string[], network: Network) {
     this.seed = seed;
@@ -25,25 +24,19 @@ export class ColdWallet {
     this.logger = new Logger('Cold Wallet');
   }
 
-  public setClient(client: WhaleApiClient) {
-    this.client = client;
-  }
-
   public initialize(): void {
     if (!this.checkPrerequisites()) throw new Error('Seed is invalid');
     this.wallet = new JellyfishWallet(
       MnemonicHdNodeProvider.fromWords(this.seed, this.bip32OptionsBasedOn(this.network)),
-      // client null check is already within checkPrerequisites()
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      new WhaleWalletAccountProvider(this.client!, this.network),
+      new WhaleWalletAccountProvider(undefined as unknown as WhaleApiClient, this.network),
       JellyfishWallet.COIN_TYPE_DFI,
       JellyfishWallet.PURPOSE_LIGHT_MASTERNODE,
     );
   }
 
-  public async getAddress(): Promise<string> {
+  public async getAddress(index = 0): Promise<string> {
     if (!this.wallet) throw new Error('Wallet is not initialized');
-    return this.wallet.get(0).getAddress();
+    return this.wallet.get(index).getAddress();
   }
 
   public async createTx(operation: Operation, payload: any): Promise<string> {
@@ -86,6 +79,6 @@ export class ColdWallet {
   }
 
   private checkPrerequisites(): boolean {
-    return this.seed != null && this.seed.length === ColdWallet.NEEDED_SEED_LENGTH && this.client != null;
+    return this.seed != null && this.seed.length === ColdWallet.NEEDED_SEED_LENGTH;
   }
 }
