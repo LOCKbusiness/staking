@@ -7,6 +7,7 @@
     "cw": "ts-node cold-wallet/main.ts",
     "mn": "ts-node masternode-manager/main.ts",
     "new-wallet": "ts-node cold-wallet/wallet/generate-new-wallet.ts",
+    "new-addresses": "ts-node cold-wallet/wallet/generate-new-addresses.ts",
     "test": "jest",
     "lint": "eslint \"**/*.ts\" --no-fix"
   },

@@ -29,7 +29,6 @@ class App {
     });
 
     const wallet = await WalletHelper.restore();
-    wallet.setClient(client);
     wallet.initialize();
     this.logger.info(await wallet.getAddress());
 
