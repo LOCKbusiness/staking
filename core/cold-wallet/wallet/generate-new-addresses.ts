@@ -11,7 +11,7 @@ const buildJSON = (index: number, address: string, wallet: string): string => {
 };
 
 const buildSQL = (index: number, address: string, wallet: string): string => {
-  return `UPDATE table_name SET owner = ${address}, ownerWallet = ${wallet} WHERE id = ${index}\n`;
+  return `UPDATE table_name SET owner = '${address}', ownerWallet = '${wallet}' WHERE id = ${index}\n`;
 };
 
 const generate = async (
