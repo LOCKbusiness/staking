@@ -1,20 +1,24 @@
 import { exit } from 'process';
-import { Operation, RequestApiPayload } from '../shared/communication/operation';
+import { Operation, RequestApiPayload, SignTxPayload } from '../shared/communication/operation';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
 import { ColdWalletCommunication } from './cold-wallet-communication';
 import fetch from 'cross-fetch';
 import { Method, ResponseAsString, WhaleApiClient } from '@defichain/whale-api-client';
 import Config from '../shared/config';
+import { Api } from '../shared/api';
+import { CreateMasternodeDto, RawTxCreateMasternodeDto } from '../shared/dto/masternode';
 
 class App {
   private readonly communication: ColdWalletCommunication;
   private readonly logger: Logger;
+  private readonly api: Api;
   private readonly client: WhaleApiClient;
 
   constructor() {
     this.communication = new ColdWalletCommunication();
     this.logger = new Logger('Masternode Manager');
+    this.api = new Api();
     this.client = new WhaleApiClient({
       url: Config.ocean.url,
       version: Config.ocean.version,
@@ -26,21 +30,45 @@ class App {
     await this.communication.connect();
 
     this.communication.on(Operation.REQUEST_API, (data: RequestApiPayload) => _fetch('GET', data.url, data.body));
-    const hex = await this.communication.query(Operation.TEST);
-    this.logger.info('received tx', hex);
-    // await this.client.rawtx.send({ hex });
 
-    try {
-      for (;;) {
+    for (;;) {
+      try {
         // fetch info from API
+        const rawTxCreateMasternodes = await this.api.getMasternodes(Config.wallet.name);
         // parse and create operations
+        if (rawTxCreateMasternodes.length > 0) {
+          const signedMasterNodeTxs = await this.signMasternodes(rawTxCreateMasternodes);
+          for (const signedMasternodeTx of signedMasterNodeTxs) {
+            this.logger.info('create masternode', signedMasternodeTx.id);
+            await this.api.createMasternode(signedMasternodeTx);
+          }
+        }
         // send operations via cold wallet communication
+      } catch (e) {
+        this.logger.error(`Exception: ${e}`);
+      } finally {
         await Util.sleep(5);
       }
-    } catch (e) {
-      this.logger.error(`Exception: ${e}`);
-      await this.communication.disconnect();
     }
+  }
+
+  async signMasternodes(infos: RawTxCreateMasternodeDto[]): Promise<CreateMasternodeDto[]> {
+    this.logger.info('masternodes to create', infos.length);
+
+    const result: CreateMasternodeDto[] = [];
+    for (const info of infos) {
+      const payload: SignTxPayload = {
+        index: info.accountIndex,
+        hex: info.rawTx.hex,
+        prevouts: info.rawTx.prevouts,
+        scriptHex: info.rawTx.scriptHex,
+      };
+      result.push({
+        id: info.id,
+        signedTx: await this.communication.query(Operation.SIGN_TX, payload),
+      });
+    }
+    return result;
   }
 }
 

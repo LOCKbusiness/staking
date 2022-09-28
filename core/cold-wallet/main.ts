@@ -32,7 +32,6 @@ class App {
     wallet.initialize();
     this.logger.info(await wallet.getAddress());
 
-    this.communication.on(Operation.TEST, (data) => wallet.createTx(Operation.TEST, data));
     this.communication.on(Operation.SIGN_TX, (data: SignTxPayload) => wallet.signTx(data));
 
     await this.communication.connect();

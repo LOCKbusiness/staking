@@ -38,6 +38,10 @@ class ConfigClass {
     network: process.env.CHAIN_NETWORK,
   };
 
+  wallet = {
+    name: 'cold-wallet-a',
+  };
+
   withdrawalMessage(amount: number, asset: string, address: string): string {
     return `Withdraw ${amount} ${asset} to ${address}`;
   }

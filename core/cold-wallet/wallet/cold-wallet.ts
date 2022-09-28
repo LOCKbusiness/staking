@@ -40,29 +40,6 @@ export class ColdWallet {
     return this.wallet.get(index).getAddress();
   }
 
-  public async createTx(operation: Operation, payload: any): Promise<string> {
-    this.logger.debug('', operation);
-    this.logger.debug('', payload);
-    const [script, builder] = await this.getTxFoundation();
-    const tx = await builder.account.utxosToAccount(
-      {
-        to: [
-          {
-            script,
-            balances: [
-              {
-                token: 0,
-                amount: new BigNumber(1),
-              },
-            ],
-          },
-        ],
-      },
-      script,
-    );
-    return new CTransactionSegWit(tx).toHex();
-  }
-
   public async signTx(data: SignTxPayload): Promise<string> {
     if (!this.wallet) throw new Error('Wallet is not initialized');
     const account = this.wallet.get(data.index);
@@ -73,7 +50,7 @@ export class ColdWallet {
       return {
         // needs to be recreated as those are objects and not just data
         value: new BigNumber(p.value),
-        script: { stack: toOPCodes(SmartBuffer.fromBuffer(Buffer.from(data.witness, 'hex'))) },
+        script: { stack: toOPCodes(SmartBuffer.fromBuffer(Buffer.from(data.scriptHex, 'hex'))) },
         tokenId: p.tokenId,
       };
     });

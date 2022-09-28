@@ -1,17 +1,22 @@
+import { RawTxDto } from './raw-tx';
+
 export enum MasternodeState {
   IDLE = 'Idle',
   CREATED = 'Created',
+  CREATING = 'Creating',
   RESIGN_REQUESTED = 'ResignRequested',
   RESIGN_CONFIRMED = 'ResignConfirmed',
   RESIGNING = 'Resigning',
   RESIGNED = 'Resigned',
 }
 
-export interface Masternode {
+export interface RawTxCreateMasternodeDto {
   id: number;
-  state: MasternodeState;
-  operator: string;
+  accountIndex: number;
+  rawTx: RawTxDto;
+}
 
-  owner?: string;
-  creationHash?: string;
+export interface CreateMasternodeDto {
+  id: number;
+  signedTx: string;
 }

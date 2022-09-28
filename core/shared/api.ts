@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, Method } from 'axios';
 import jwtDecode from 'jwt-decode';
 import Config from './config';
-import { Masternode } from './dto/masternode';
+import { CreateMasternodeDto, RawTxCreateMasternodeDto } from './dto/masternode';
 import { Withdrawal } from './dto/withdrawal';
 import { Util } from './util';
 
@@ -16,19 +16,12 @@ export class Api {
   }
 
   // --- MASTERNODES --- //
-  async getMasternodes(): Promise<Masternode[]> {
-    return await this.callApi('masternode');
+  async getMasternodes(ownerWallet: string): Promise<RawTxCreateMasternodeDto[]> {
+    return await this.callApi('masternode/creating', 'GET', { ownerWallet });
   }
 
-  async createMasternode(
-    id: number,
-    date: Date,
-    hash: string,
-    owner: string,
-    ownerWallet: string,
-    timeLock: number,
-  ): Promise<void> {
-    return await this.callApi(`masternode/${id}/create`, 'PUT', { date, hash, owner, ownerWallet, timeLock });
+  async createMasternode(dto: CreateMasternodeDto): Promise<void> {
+    return await this.callApi(`masternode/${dto.id}/create`, 'PUT', dto);
   }
 
   async requestMasternodeResign(id: number, signature: string): Promise<void> {
@@ -73,7 +66,7 @@ export class Api {
   private async getAccessToken(): Promise<string | undefined> {
     // renew
     if (this.accessToken == null || this.expires == null || this.expires <= new Date()) {
-      const result = await axios.post<{ accessToken: string }>(`${this.apiUrl}/auth/signIn`, {
+      const result = await axios.post<{ accessToken: string }>(`${this.apiUrl}/auth/sign-in`, {
         address: Config.api.address,
         signature: Config.api.signature,
       });
