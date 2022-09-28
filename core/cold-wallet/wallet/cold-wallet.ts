@@ -3,10 +3,10 @@ import { JellyfishWallet, WalletHdNode } from '@defichain/jellyfish-wallet';
 import { WhaleWalletAccount, WhaleWalletAccountProvider } from '@defichain/whale-api-wallet';
 import { Bip32Options, MnemonicHdNodeProvider } from '@defichain/jellyfish-wallet-mnemonic';
 import { WhaleApiClient } from '@defichain/whale-api-client';
-import { Script, CTransactionSegWit, CTransaction, Vout } from '@defichain/jellyfish-transaction';
+import { Script, CTransactionSegWit, Vout, toOPCodes } from '@defichain/jellyfish-transaction';
 import { P2WPKHTransactionBuilder } from '@defichain/jellyfish-transaction-builder';
 import { Logger } from '../../shared/logger';
-import { Operation } from '../../shared/communication/operation';
+import { Operation, SignTxPayload } from '../../shared/communication/operation';
 import { BigNumber } from '@defichain/jellyfish-api-core';
 import { SmartBuffer } from 'smart-buffer';
 
@@ -63,17 +63,28 @@ export class ColdWallet {
     return new CTransactionSegWit(tx).toHex();
   }
 
-  public async signTx(hex: string, index: number): Promise<string> {
+  public async signTx(data: SignTxPayload): Promise<string> {
     if (!this.wallet) throw new Error('Wallet is not initialized');
-    const account = this.wallet.get(index);
-    const [tx, vout] = this.parseTx(hex);
-    const signedTx = await account.signTx(tx, vout);
-    return new CTransaction(signedTx).toHex();
+    const account = this.wallet.get(data.index);
+    const tx = this.parseTx(data.hex);
+    this.logger.info('signing tx');
+    this.logger.info(' with', await account.getAddress());
+    const prevouts: Vout[] = data.prevouts.map((p) => {
+      return {
+        // needs to be recreated as those are objects and not just data
+        value: new BigNumber(p.value),
+        script: { stack: toOPCodes(SmartBuffer.fromBuffer(Buffer.from(data.witness, 'hex'))) },
+        tokenId: p.tokenId,
+      };
+    });
+    const signedTx = await account.signTx(tx, prevouts);
+    this.logger.info('signed tx');
+    return new CTransactionSegWit(signedTx).toHex();
   }
 
-  private parseTx(hex: string): [CTransaction, Vout[]] {
-    const tx = new CTransaction(SmartBuffer.fromBuffer(Buffer.from(hex, 'hex')));
-    return [tx, tx.vout];
+  private parseTx(hex: string): CTransactionSegWit {
+    this.logger.info('parseTx');
+    return new CTransactionSegWit(SmartBuffer.fromBuffer(Buffer.from(hex, 'hex')));
   }
 
   private async getTxFoundation(accountIndex = 0): Promise<[Script, P2WPKHTransactionBuilder]> {

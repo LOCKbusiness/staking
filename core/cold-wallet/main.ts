@@ -1,5 +1,5 @@
 import { exit } from 'process';
-import { Operation } from '../shared/communication/operation';
+import { Operation, SignTxPayload } from '../shared/communication/operation';
 import Config from '../shared/config';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
@@ -33,6 +33,7 @@ class App {
     this.logger.info(await wallet.getAddress());
 
     this.communication.on(Operation.TEST, (data) => wallet.createTx(Operation.TEST, data));
+    this.communication.on(Operation.SIGN_TX, (data: SignTxPayload) => wallet.signTx(data));
 
     await this.communication.connect();
 
