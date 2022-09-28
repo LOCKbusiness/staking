@@ -1,5 +1,5 @@
 import { exit } from 'process';
-import { Operation, RequestApiPayload, TestPayload } from '../shared/communication/operation';
+import { Operation, RequestApiPayload } from '../shared/communication/operation';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
 import { ColdWalletCommunication } from './cold-wallet-communication';

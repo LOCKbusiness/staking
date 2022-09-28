@@ -1,4 +1,5 @@
 import { MainNet, Network, TestNet } from '@defichain/jellyfish-network';
+import { WhaleApiClient } from '@defichain/whale-api-client';
 import readline from 'readline';
 import { Writable } from 'stream';
 import Config from './config';
@@ -115,5 +116,20 @@ export class Util {
       default:
         return TestNet;
     }
+  }
+
+  // --- OCEAN UTIL --- //
+  static async waitForTx(txId: string, client: WhaleApiClient, timeout = 1200): Promise<string> {
+    const tx = await Util.poll(
+      () => client.transactions.get(txId),
+      (t) => t !== undefined,
+      5,
+      timeout,
+      true,
+    );
+
+    if (tx) return tx.id;
+
+    throw new Error(`Wait for TX ${txId} timed out`);
   }
 }
