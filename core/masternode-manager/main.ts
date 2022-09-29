@@ -40,7 +40,11 @@ class App {
           const signedMasterNodeTxs = await this.signMasternodes(rawTxCreateMasternodes);
           for (const signedMasternodeTx of signedMasterNodeTxs) {
             this.logger.info('create masternode', signedMasternodeTx.id);
-            await this.api.createMasternode(signedMasternodeTx);
+            try {
+              await this.api.createMasternode(signedMasternodeTx);
+            } catch (e) {
+              this.logger.error('Sending create masternode ERROR:', e);
+            }
           }
         }
         // send operations via cold wallet communication
