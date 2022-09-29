@@ -13,6 +13,8 @@ export enum MasternodeState {
 export interface RawTxCreateMasternodeDto {
   id: number;
   accountIndex: number;
+  owner: string;
+  operator: string;
   rawTx: RawTxDto;
 }
 
