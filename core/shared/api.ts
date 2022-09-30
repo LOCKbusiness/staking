@@ -1,7 +1,12 @@
 import axios, { AxiosRequestConfig, Method } from 'axios';
 import jwtDecode from 'jwt-decode';
 import Config from './config';
-import { SignedMasternodeTxDto, RawTxCreateMasternodeDto, RawTxResignMasternodeDto } from './dto/masternode';
+import {
+  SignedMasternodeTxDto,
+  RawTxCreateMasternodeDto,
+  RawTxResignMasternodeDto,
+  Masternode,
+} from './dto/masternode';
 import { Withdrawal } from './dto/withdrawal';
 import { Util } from './util';
 
@@ -16,6 +21,10 @@ export class Api {
   }
 
   // --- MASTERNODES --- //
+  async getMasternodes(): Promise<Masternode[]> {
+    return await this.callApi('masternode');
+  }
+
   async getMasternodesCreating(ownerWallet: string): Promise<RawTxCreateMasternodeDto[]> {
     return await this.callApi('masternode/creating', 'GET', { ownerWallet });
   }
@@ -30,6 +39,10 @@ export class Api {
 
   async resignMasternode(dto: SignedMasternodeTxDto): Promise<void> {
     return await this.callApi(`masternode/${dto.id}/resign`, 'PUT', dto);
+  }
+
+  async resignedMasternode(dto: SignedMasternodeTxDto): Promise<void> {
+    return await this.callApi(`masternode/${dto.id}/resigned`, 'PUT', dto);
   }
 
   // --- WITHDRAWALS --- //

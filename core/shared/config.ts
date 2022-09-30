@@ -1,10 +1,6 @@
 import { config } from 'dotenv';
 
 class ConfigClass {
-  liquidityWalletAddress = process.env.LIQUIDITY_WALLET_ADDRESS ?? '';
-  masternodeWalletAddress = process.env.MASTERNODE_WALLET_ADDRESS ?? '';
-  payoutWalletAddress = process.env.PAYOUT_WALLET_ADDRESS ?? '';
-
   api = {
     url: process.env.API_URL,
     address: process.env.API_ADDRESS,
@@ -18,6 +14,8 @@ class ConfigClass {
   liquidity = {
     min: 20000,
     max: 40000,
+
+    walletAddress: process.env.LIQUIDITY_WALLET_ADDRESS ?? '',
   };
 
   masternode = {
