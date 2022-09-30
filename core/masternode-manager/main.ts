@@ -7,7 +7,7 @@ import fetch from 'cross-fetch';
 import { Method, ResponseAsString, WhaleApiClient } from '@defichain/whale-api-client';
 import Config from '../shared/config';
 import { Api } from '../shared/api';
-import { CreateMasternodeDto, RawTxCreateMasternodeDto } from '../shared/dto/masternode';
+import { SignedMasternodeTxDto, RawTxCreateMasternodeDto, RawTxResignMasternodeDto } from '../shared/dto/masternode';
 
 class App {
   private readonly communication: ColdWalletCommunication;
@@ -34,11 +34,11 @@ class App {
     for (;;) {
       try {
         // fetch info from API
-        const rawTxCreateMasternodes = await this.api.getMasternodes(Config.wallet.name);
+        const rawTxCreateMasternodes = await this.api.getMasternodesCreating(Config.wallet.name);
         // parse and create operations
         if (rawTxCreateMasternodes.length > 0) {
-          const signedMasterNodeTxs = await this.signMasternodes(rawTxCreateMasternodes);
-          for (const signedMasternodeTx of signedMasterNodeTxs) {
+          const signedMasternodeTxs = await this.signMasternodes(rawTxCreateMasternodes);
+          for (const signedMasternodeTx of signedMasternodeTxs) {
             this.logger.info('create masternode', signedMasternodeTx.id);
             try {
               await this.api.createMasternode(signedMasternodeTx);
@@ -47,7 +47,20 @@ class App {
             }
           }
         }
-        // send operations via cold wallet communication
+
+        const rawTxResignMasternodes = await this.api.getMasternodesResigning(Config.wallet.name);
+
+        if (rawTxResignMasternodes.length > 0) {
+          const signedMasternodeTxs = await this.signMasternodes(rawTxResignMasternodes);
+          for (const signedMasternodeTx of signedMasternodeTxs) {
+            this.logger.info('resign masternode', signedMasternodeTx.id);
+            try {
+              await this.api.resignMasternode(signedMasternodeTx);
+            } catch (e) {
+              this.logger.error('Sending resign masternode ERROR:', e);
+            }
+          }
+        }
       } catch (e) {
         this.logger.error(`Exception: ${e}`);
       } finally {
@@ -56,10 +69,12 @@ class App {
     }
   }
 
-  async signMasternodes(infos: RawTxCreateMasternodeDto[]): Promise<CreateMasternodeDto[]> {
-    this.logger.info('masternodes to create', infos.length);
+  async signMasternodes(
+    infos: RawTxCreateMasternodeDto[] | RawTxResignMasternodeDto[],
+  ): Promise<SignedMasternodeTxDto[]> {
+    this.logger.info('masternodes to sign', infos.length);
 
-    const result: CreateMasternodeDto[] = [];
+    const result: SignedMasternodeTxDto[] = [];
     for (const info of infos) {
       const payload: SignTxPayload = {
         index: info.accountIndex,
