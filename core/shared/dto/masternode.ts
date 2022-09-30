@@ -18,7 +18,14 @@ export interface RawTxCreateMasternodeDto {
   rawTx: RawTxDto;
 }
 
-export interface CreateMasternodeDto {
+export interface RawTxResignMasternodeDto {
+  id: number;
+  accountIndex: number;
+  operator: string;
+  rawTx: RawTxDto;
+}
+
+export interface SignedMasternodeTxDto {
   id: number;
   signedTx: string;
 }

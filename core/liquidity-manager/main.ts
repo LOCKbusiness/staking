@@ -30,7 +30,7 @@ class App {
       try {
         const balance = await this.node.getBalance();
         const withdrawals = await this.withdrawal.getValidWithdrawals();
-        const masternodes = await this.api.getMasternodes();
+        const masternodes = await this.api.getMasternodesCreating();
 
         // check liquidity
         // TODO: debounce?

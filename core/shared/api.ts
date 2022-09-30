@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, Method } from 'axios';
 import jwtDecode from 'jwt-decode';
 import Config from './config';
-import { CreateMasternodeDto, RawTxCreateMasternodeDto } from './dto/masternode';
+import { SignedMasternodeTxDto, RawTxCreateMasternodeDto, RawTxResignMasternodeDto } from './dto/masternode';
 import { Withdrawal } from './dto/withdrawal';
 import { Util } from './util';
 
@@ -16,24 +16,20 @@ export class Api {
   }
 
   // --- MASTERNODES --- //
-  async getMasternodes(ownerWallet: string): Promise<RawTxCreateMasternodeDto[]> {
+  async getMasternodesCreating(ownerWallet: string): Promise<RawTxCreateMasternodeDto[]> {
     return await this.callApi('masternode/creating', 'GET', { ownerWallet });
   }
 
-  async createMasternode(dto: CreateMasternodeDto): Promise<void> {
+  async getMasternodesResigning(ownerWallet: string): Promise<RawTxResignMasternodeDto[]> {
+    return await this.callApi('masternode/resigning', 'GET', { ownerWallet });
+  }
+
+  async createMasternode(dto: SignedMasternodeTxDto): Promise<void> {
     return await this.callApi(`masternode/${dto.id}/create`, 'PUT', dto);
   }
 
-  async requestMasternodeResign(id: number, signature: string): Promise<void> {
-    return await this.callApi(`masternode/${id}/requestResign`, 'PUT', { signature });
-  }
-
-  async resigningMasternode(id: number, date: Date, hash: string): Promise<void> {
-    return await this.callApi(`masternode/${id}/resign`, 'PUT', { date, hash });
-  }
-
-  async resignedMasternode(id: number): Promise<void> {
-    return await this.callApi(`masternode/${id}/resigned`, 'PUT');
+  async resignMasternode(dto: SignedMasternodeTxDto): Promise<void> {
+    return await this.callApi(`masternode/${dto.id}/resign`, 'PUT', dto);
   }
 
   // --- WITHDRAWALS --- //
