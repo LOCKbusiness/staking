@@ -1,29 +1,29 @@
 import { exit } from 'process';
-import { Operation, RequestApiPayload, SignTxPayload } from '../shared/communication/operation';
+import { Operation, RequestApiPayload, SignedTxPayload, SignTxPayload } from '../shared/communication/operation';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
 import { ColdWalletCommunication } from './cold-wallet-communication';
 import fetch from 'cross-fetch';
-import { Method, ResponseAsString, WhaleApiClient } from '@defichain/whale-api-client';
+import { Method, ResponseAsString } from '@defichain/whale-api-client';
 import Config from '../shared/config';
 import { Api } from '../shared/api';
-import { SignedMasternodeTxDto, RawTxCreateMasternodeDto, RawTxResignMasternodeDto } from '../shared/dto/masternode';
+import {
+  SignedMasternodeTxDto,
+  RawTxCreateMasternodeDto,
+  RawTxResignMasternodeDto,
+  MasternodeState,
+  Masternode,
+} from '../shared/dto/masternode';
 
 class App {
   private readonly communication: ColdWalletCommunication;
   private readonly logger: Logger;
   private readonly api: Api;
-  private readonly client: WhaleApiClient;
 
   constructor() {
     this.communication = new ColdWalletCommunication();
     this.logger = new Logger('Masternode Manager');
     this.api = new Api();
-    this.client = new WhaleApiClient({
-      url: Config.ocean.url,
-      version: Config.ocean.version,
-      network: Util.readNetwork().name,
-    });
   }
 
   async run(): Promise<void> {
@@ -34,37 +34,79 @@ class App {
     for (;;) {
       try {
         // fetch info from API
-        const rawTxCreateMasternodes = await this.api.getMasternodesCreating(Config.wallet.name);
-        // parse and create operations
-        if (rawTxCreateMasternodes.length > 0) {
-          const signedMasternodeTxs = await this.signMasternodes(rawTxCreateMasternodes);
-          for (const signedMasternodeTx of signedMasternodeTxs) {
-            this.logger.info('create masternode', signedMasternodeTx.id);
-            try {
-              await this.api.createMasternode(signedMasternodeTx);
-            } catch (e) {
-              this.logger.error('Sending create masternode ERROR:', e);
-            }
-          }
+        const masternodes = await this.api.getMasternodes();
+
+        // check if something needs to be done by this wallet
+        const numberOfCreating = masternodes.filter(
+          (m) => m.state === MasternodeState.CREATING && m.ownerWallet === Config.wallet.name,
+        ).length;
+        const numberOfResignConfirmed = masternodes.filter(
+          (m) => m.state === MasternodeState.RESIGN_CONFIRMED && m.ownerWallet === Config.wallet.name,
+        ).length;
+        const resigningMasternodes = masternodes.filter(
+          (m) => m.state === MasternodeState.RESIGNING && m.ownerWallet === Config.wallet.name,
+        );
+
+        // executing based on received information
+        if (numberOfCreating > 0) {
+          await this.handleCreateMasternodes();
         }
-
-        const rawTxResignMasternodes = await this.api.getMasternodesResigning(Config.wallet.name);
-
-        if (rawTxResignMasternodes.length > 0) {
-          const signedMasternodeTxs = await this.signMasternodes(rawTxResignMasternodes);
-          for (const signedMasternodeTx of signedMasternodeTxs) {
-            this.logger.info('resign masternode', signedMasternodeTx.id);
-            try {
-              await this.api.resignMasternode(signedMasternodeTx);
-            } catch (e) {
-              this.logger.error('Sending resign masternode ERROR:', e);
-            }
-          }
+        if (numberOfResignConfirmed > 0) {
+          await this.handleResignMasternodes();
+        }
+        if (resigningMasternodes.length > 0) {
+          await this.handleResigning(resigningMasternodes);
         }
       } catch (e) {
         this.logger.error(`Exception: ${e}`);
       } finally {
         await Util.sleep(5);
+      }
+    }
+  }
+
+  async handleCreateMasternodes(): Promise<void> {
+    const rawTxCreateMasternodes = await this.api.getMasternodesCreating(Config.wallet.name);
+    // parse and create operations
+    if (rawTxCreateMasternodes.length > 0) {
+      const signedMasternodeTxs = await this.signMasternodes(rawTxCreateMasternodes);
+      for (const signedMasternodeTx of signedMasternodeTxs) {
+        this.logger.info('create masternode', signedMasternodeTx.id);
+        try {
+          await this.api.createMasternode(signedMasternodeTx);
+        } catch (e) {
+          this.logger.error('Sending create masternode ERROR:', e);
+        }
+      }
+    }
+  }
+
+  async handleResignMasternodes(): Promise<void> {
+    const rawTxResignMasternodes = await this.api.getMasternodesResigning(Config.wallet.name);
+
+    if (rawTxResignMasternodes.length > 0) {
+      const signedMasternodeTxs = await this.signMasternodes(rawTxResignMasternodes);
+      for (const signedMasternodeTx of signedMasternodeTxs) {
+        this.logger.info('resign masternode', signedMasternodeTx.id);
+        try {
+          await this.api.resignMasternode(signedMasternodeTx);
+        } catch (e) {
+          this.logger.error('Sending resign masternode ERROR:', e);
+        }
+      }
+    }
+  }
+
+  async handleResigning(masternodes: Masternode[]): Promise<void> {
+    this.logger.info('payouts to make', masternodes.length);
+    for (const masternode of masternodes) {
+      const response: SignedTxPayload = await this.communication.query(Operation.PAYOUT_ALL, {
+        index: masternode.accountIndex,
+      });
+      try {
+        if (!response.isError) await this.api.resignedMasternode({ id: masternode.id, signedTx: response.signedTx });
+      } catch (e) {
+        this.logger.error('Sending resigned masternode ERROR:', e);
       }
     }
   }
@@ -82,10 +124,13 @@ class App {
         prevouts: info.rawTx.prevouts,
         scriptHex: info.rawTx.scriptHex,
       };
-      result.push({
-        id: info.id,
-        signedTx: await this.communication.query(Operation.SIGN_TX, payload),
-      });
+      const response: SignedTxPayload = await this.communication.query(Operation.SIGN_TX, payload);
+      if (!response.isError) {
+        result.push({
+          id: info.id,
+          signedTx: response.signedTx,
+        });
+      }
     }
     return result;
   }

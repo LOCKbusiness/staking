@@ -1,5 +1,5 @@
 import { exit } from 'process';
-import { Operation, SignTxPayload } from '../shared/communication/operation';
+import { Operation, PayoutAllPayload, SignTxPayload } from '../shared/communication/operation';
 import Config from '../shared/config';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
@@ -29,20 +29,21 @@ class App {
     });
 
     const wallet = await WalletHelper.restore();
+    wallet.setClient(client);
     wallet.initialize();
     this.logger.info(await wallet.getAddress());
 
     this.communication.on(Operation.SIGN_TX, (data: SignTxPayload) => wallet.signTx(data));
+    this.communication.on(Operation.PAYOUT_ALL, (data: PayoutAllPayload) => wallet.payout(data));
 
     await this.communication.connect();
 
-    try {
-      for (;;) {
+    for (;;) {
+      try {
         await Util.sleep(1);
+      } catch (e) {
+        this.logger.error(`Exception: ${e}`);
       }
-    } catch (e) {
-      this.logger.error(`Exception: ${e}`);
-      await this.communication.disconnect();
     }
   }
 }

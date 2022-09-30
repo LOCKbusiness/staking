@@ -10,6 +10,15 @@ export enum MasternodeState {
   RESIGNED = 'Resigned',
 }
 
+export interface Masternode {
+  id: number;
+  operator: string;
+  owner: string;
+  ownerWallet: string;
+  accountIndex: number;
+  state: MasternodeState;
+}
+
 export interface RawTxCreateMasternodeDto {
   id: number;
   accountIndex: number;
