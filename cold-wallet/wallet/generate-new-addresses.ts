@@ -29,7 +29,7 @@ const generate = async (
   for (let i = 0; i < numberOfAddresses; i++) {
     // in our new setup it doesn't matter if default address is used or not
     // as it isn't used as collector address anymore
-    const address = await wallet.getAddress(i);
+    const address = await wallet.getAddress(accountIndex + i);
     switch (exportType) {
       case ExportType.SQL:
         result += buildSQL(startingIndex + i, address, walletName, accountIndex + i);
