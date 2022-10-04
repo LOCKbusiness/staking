@@ -16,11 +16,14 @@ class ConfigClass {
     max: 40000,
 
     walletAddress: process.env.LIQUIDITY_WALLET_ADDRESS ?? '',
+    signatureAddress: process.env.LIQUIDITY_SIGNATURE_ADDRESS ?? '',
   };
 
   masternode = {
     collateral: 20000,
     fee: 10,
+
+    signatureAddress: process.env.MASTERNODE_SIGNATURE_ADDRESS ?? '',
 
     resignMessage(mnId: number, creationHash: string): string {
       return `Resign masternode ${mnId} with hash ${creationHash}`;

@@ -11,6 +11,9 @@ import { BigNumber } from '@defichain/jellyfish-api-core';
 import { SmartBuffer } from 'smart-buffer';
 import Config from '../../shared/config';
 import { ColdWalletClient } from '../communication/cold-wallet-client';
+import { Validator } from '../transaction/validator';
+import { CheckSignature, Verify } from '../signature/verify';
+import { ManagerCommunication } from '../communication/manager-communication';
 
 export class ColdWallet {
   public static NEEDED_SEED_LENGTH = 24;
@@ -50,8 +53,29 @@ export class ColdWallet {
 
   public async signTx(data: SignTxPayload): Promise<SignedTxPayload> {
     if (!this.wallet) throw new Error('Wallet is not initialized');
+
+    const check: Partial<CheckSignature> = {
+      message: data.hex,
+      network: this.network,
+    };
+    if (
+      !Verify.signature({ signature: data.apiSignature, address: Config.liquidity.signatureAddress, ...check }) ||
+      !Verify.signature({ signature: data.masternodeSignature, address: Config.masternode.signatureAddress, ...check })
+    ) {
+      this.logger.warning('Transaction failed signature check');
+      return { isError: true, signedTx: '' };
+    }
+    this.logger.info('signature verification passed');
+
     const account = this.wallet.get(data.index);
+
     const tx = this.parseTx(data.hex);
+    if (!Validator.isAllowed(tx, data, await account.getScript())) {
+      this.logger.warning('Transaction failed validation', data.hex);
+      return { isError: true, signedTx: '' };
+    }
+    this.logger.info('validation passed');
+
     this.logger.info('signing tx');
     this.logger.info(' with', await account.getAddress());
     const prevouts: Vout[] = data.prevouts.map((p) => {

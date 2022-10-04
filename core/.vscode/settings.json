@@ -2,6 +2,6 @@
   "files.exclude": {
     "node_modules": true
   },
-  "cSpell.words": ["defichain", "gpio", "masternode", "masternodes", "utxo"],
+  "cSpell.words": ["defichain", "gpio", "masternode", "masternodes", "utxo", "vout", "DEFI", "prevouts", "Prevout"],
   "editor.formatOnSave": true
 }
