@@ -7,14 +7,7 @@ class ConfigClass {
     signature: process.env.API_SIGNATURE,
   };
 
-  node = {
-    auth: process.env.NODE_RPC_AUTH ?? '',
-  };
-
   liquidity = {
-    min: 20000,
-    max: 40000,
-
     walletAddress: process.env.LIQUIDITY_WALLET_ADDRESS ?? '',
     signatureAddress: process.env.LIQUIDITY_SIGNATURE_ADDRESS ?? '',
   };
@@ -24,10 +17,6 @@ class ConfigClass {
     fee: 10,
 
     signatureAddress: process.env.MASTERNODE_SIGNATURE_ADDRESS ?? '',
-
-    resignMessage(mnId: number, creationHash: string): string {
-      return `Resign masternode ${mnId} with hash ${creationHash}`;
-    },
   };
 
   ocean = {
@@ -42,10 +31,6 @@ class ConfigClass {
   wallet = {
     name: 'cold-wallet-a',
   };
-
-  withdrawalMessage(amount: number, asset: string, address: string): string {
-    return `Withdraw ${amount} ${asset} to ${address}`;
-  }
 }
 
 config();

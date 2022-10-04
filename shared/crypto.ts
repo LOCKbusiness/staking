@@ -1,17 +1,24 @@
 import { verify } from 'bitcoinjs-message';
 import { Util } from './util';
 
+export interface CheckSignature {
+  message?: string;
+  address?: string;
+  signature?: string;
+}
+
 export class Crypto {
-  static verifySignature(message: string, address: string, signature: string): boolean {
+  static verifySignature(data: CheckSignature): boolean {
+    if (!data.message || !data.address || !data.signature) return false;
     let isValid = false;
     try {
-      isValid = this.verify(message, address, signature);
+      isValid = this.verify(data.message, data.address, data.signature);
     } catch (e) {
       // ignore error
     }
 
     if (!isValid) {
-      isValid = this.fallbackVerify(message, address, signature);
+      isValid = this.fallbackVerify(data.message, data.address, data.signature);
     }
     return isValid;
   }

@@ -12,8 +12,7 @@ import { SmartBuffer } from 'smart-buffer';
 import Config from '../../shared/config';
 import { ColdWalletClient } from '../communication/cold-wallet-client';
 import { Validator } from '../transaction/validator';
-import { CheckSignature, Verify } from '../signature/verify';
-import { ManagerCommunication } from '../communication/manager-communication';
+import { CheckSignature, Crypto } from '../../shared/crypto';
 
 export class ColdWallet {
   public static NEEDED_SEED_LENGTH = 24;
@@ -56,11 +55,14 @@ export class ColdWallet {
 
     const check: Partial<CheckSignature> = {
       message: data.hex,
-      network: this.network,
     };
     if (
-      !Verify.signature({ signature: data.apiSignature, address: Config.liquidity.signatureAddress, ...check }) ||
-      !Verify.signature({ signature: data.masternodeSignature, address: Config.masternode.signatureAddress, ...check })
+      !Crypto.verifySignature({ signature: data.apiSignature, address: Config.liquidity.signatureAddress, ...check }) ||
+      !Crypto.verifySignature({
+        signature: data.masternodeSignature,
+        address: Config.masternode.signatureAddress,
+        ...check,
+      })
     ) {
       this.logger.warning('Transaction failed signature check');
       return { isError: true, signedTx: '' };

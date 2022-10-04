@@ -2,7 +2,6 @@ import axios, { AxiosRequestConfig, Method } from 'axios';
 import jwtDecode from 'jwt-decode';
 import Config from './config';
 import { SignedMasternodeTxDto, RawTxMasternodeDto, Masternode } from './dto/masternode';
-import { Withdrawal } from './dto/withdrawal';
 import { Util } from './util';
 
 export class Api {
@@ -38,15 +37,6 @@ export class Api {
 
   async resignedMasternode(dto: SignedMasternodeTxDto): Promise<void> {
     return this.callApi(`masternode/${dto.id}/resigned`, 'PUT', dto);
-  }
-
-  // --- WITHDRAWALS --- //
-  async getPendingWithdrawals(): Promise<Withdrawal[]> {
-    return this.callApi('staking/withdrawals/pending');
-  }
-
-  async setWithdrawalReady(id: number): Promise<void> {
-    return this.callApi(`staking/withdrawal/${id}/ready`, 'POST', undefined, 3);
   }
 
   // --- HELPER METHODS --- //

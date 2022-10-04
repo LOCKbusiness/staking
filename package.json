@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "liq": "ts-node liquidity-manager/main.ts",
     "cw": "ts-node cold-wallet/main.ts",
     "mn": "ts-node masternode-manager/main.ts",
     "new-wallet": "ts-node cold-wallet/wallet/generate-new-wallet.ts",
