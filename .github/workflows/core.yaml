@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: "16.x"
-  DIRECTORY: "./core"
+  NODE_VERSION: '16.x'
+  DIRECTORY: '.'
 
 jobs:
   test:
