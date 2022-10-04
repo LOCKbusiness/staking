@@ -19,19 +19,13 @@ export interface Masternode {
   state: MasternodeState;
 }
 
-export interface RawTxCreateMasternodeDto {
+export interface RawTxMasternodeDto {
   id: number;
   accountIndex: number;
   owner: string;
   operator: string;
   rawTx: RawTxDto;
-}
-
-export interface RawTxResignMasternodeDto {
-  id: number;
-  accountIndex: number;
-  operator: string;
-  rawTx: RawTxDto;
+  apiSignature: string;
 }
 
 export interface SignedMasternodeTxDto {

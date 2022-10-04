@@ -15,11 +15,20 @@ export interface PayoutAllPayload {
   index: number;
 }
 
+export enum TxType {
+  CREATE_MASTERNODE,
+  RESIGN_MASTERNODE,
+  PAYBACK_COLLATERAL,
+}
+
 export interface SignTxPayload {
   index: number;
+  type: TxType;
   hex: string;
   prevouts: Prevout[];
   scriptHex: any;
+  apiSignature: string;
+  masternodeSignature: string;
 }
 
 export interface RequestApiPayload {

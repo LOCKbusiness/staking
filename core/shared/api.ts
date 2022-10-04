@@ -1,12 +1,7 @@
 import axios, { AxiosRequestConfig, Method } from 'axios';
 import jwtDecode from 'jwt-decode';
 import Config from './config';
-import {
-  SignedMasternodeTxDto,
-  RawTxCreateMasternodeDto,
-  RawTxResignMasternodeDto,
-  Masternode,
-} from './dto/masternode';
+import { SignedMasternodeTxDto, RawTxMasternodeDto, Masternode } from './dto/masternode';
 import { Withdrawal } from './dto/withdrawal';
 import { Util } from './util';
 
@@ -22,36 +17,36 @@ export class Api {
 
   // --- MASTERNODES --- //
   async getMasternodes(): Promise<Masternode[]> {
-    return await this.callApi('masternode');
+    return this.callApi('masternode');
   }
 
-  async getMasternodesCreating(ownerWallet: string): Promise<RawTxCreateMasternodeDto[]> {
-    return await this.callApi('masternode/creating', 'GET', { ownerWallet });
+  async getMasternodesCreating(ownerWallet: string): Promise<RawTxMasternodeDto[]> {
+    return this.callApi('masternode/creating', 'GET', { ownerWallet });
   }
 
-  async getMasternodesResigning(ownerWallet: string): Promise<RawTxResignMasternodeDto[]> {
-    return await this.callApi('masternode/resigning', 'GET', { ownerWallet });
+  async getMasternodesResigning(ownerWallet: string): Promise<RawTxMasternodeDto[]> {
+    return this.callApi('masternode/resigning', 'GET', { ownerWallet });
   }
 
   async createMasternode(dto: SignedMasternodeTxDto): Promise<void> {
-    return await this.callApi(`masternode/${dto.id}/create`, 'PUT', dto);
+    return this.callApi(`masternode/${dto.id}/create`, 'PUT', dto);
   }
 
   async resignMasternode(dto: SignedMasternodeTxDto): Promise<void> {
-    return await this.callApi(`masternode/${dto.id}/resign`, 'PUT', dto);
+    return this.callApi(`masternode/${dto.id}/resign`, 'PUT', dto);
   }
 
   async resignedMasternode(dto: SignedMasternodeTxDto): Promise<void> {
-    return await this.callApi(`masternode/${dto.id}/resigned`, 'PUT', dto);
+    return this.callApi(`masternode/${dto.id}/resigned`, 'PUT', dto);
   }
 
   // --- WITHDRAWALS --- //
   async getPendingWithdrawals(): Promise<Withdrawal[]> {
-    return await this.callApi('staking/withdrawals/pending');
+    return this.callApi('staking/withdrawals/pending');
   }
 
   async setWithdrawalReady(id: number): Promise<void> {
-    return await this.callApi(`staking/withdrawal/${id}/ready`, 'POST', undefined, 3);
+    return this.callApi(`staking/withdrawal/${id}/ready`, 'POST', undefined, 3);
   }
 
   // --- HELPER METHODS --- //
@@ -69,7 +64,7 @@ export class Api {
       headers: { Authorization: 'Bearer ' + (await this.getAccessToken()) },
     };
 
-    return await Util.retry(() => axios.request<T>(config).then((r) => r.data), tryCount, retryDelay);
+    return Util.retry(() => axios.request<T>(config).then((r) => r.data), tryCount, retryDelay);
   }
 
   private async getAccessToken(): Promise<string | undefined> {

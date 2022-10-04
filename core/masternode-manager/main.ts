@@ -1,5 +1,11 @@
 import { exit } from 'process';
-import { Operation, RequestApiPayload, SignedTxPayload, SignTxPayload } from '../shared/communication/operation';
+import {
+  Operation,
+  RequestApiPayload,
+  SignedTxPayload,
+  SignTxPayload,
+  TxType,
+} from '../shared/communication/operation';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
 import { ColdWalletCommunication } from './cold-wallet-communication';
@@ -7,13 +13,7 @@ import fetch from 'cross-fetch';
 import { Method, ResponseAsString } from '@defichain/whale-api-client';
 import Config from '../shared/config';
 import { Api } from '../shared/api';
-import {
-  SignedMasternodeTxDto,
-  RawTxCreateMasternodeDto,
-  RawTxResignMasternodeDto,
-  MasternodeState,
-  Masternode,
-} from '../shared/dto/masternode';
+import { SignedMasternodeTxDto, RawTxMasternodeDto, MasternodeState, Masternode } from '../shared/dto/masternode';
 
 class App {
   private readonly communication: ColdWalletCommunication;
@@ -66,10 +66,11 @@ class App {
   }
 
   async handleCreateMasternodes(): Promise<void> {
+    this.logger.info('handle create masternodes');
     const rawTxCreateMasternodes = await this.api.getMasternodesCreating(Config.wallet.name);
     // parse and create operations
     if (rawTxCreateMasternodes.length > 0) {
-      const signedMasternodeTxs = await this.signMasternodes(rawTxCreateMasternodes);
+      const signedMasternodeTxs = await this.signMasternodes(rawTxCreateMasternodes, TxType.CREATE_MASTERNODE);
       for (const signedMasternodeTx of signedMasternodeTxs) {
         this.logger.info('create masternode', signedMasternodeTx.id);
         try {
@@ -82,10 +83,11 @@ class App {
   }
 
   async handleResignMasternodes(): Promise<void> {
+    this.logger.info('handle resign masternodes');
     const rawTxResignMasternodes = await this.api.getMasternodesResigning(Config.wallet.name);
 
     if (rawTxResignMasternodes.length > 0) {
-      const signedMasternodeTxs = await this.signMasternodes(rawTxResignMasternodes);
+      const signedMasternodeTxs = await this.signMasternodes(rawTxResignMasternodes, TxType.RESIGN_MASTERNODE);
       for (const signedMasternodeTx of signedMasternodeTxs) {
         this.logger.info('resign masternode', signedMasternodeTx.id);
         try {
@@ -111,18 +113,19 @@ class App {
     }
   }
 
-  async signMasternodes(
-    infos: RawTxCreateMasternodeDto[] | RawTxResignMasternodeDto[],
-  ): Promise<SignedMasternodeTxDto[]> {
+  async signMasternodes(infos: RawTxMasternodeDto[], type: TxType): Promise<SignedMasternodeTxDto[]> {
     this.logger.info('masternodes to sign', infos.length);
 
     const result: SignedMasternodeTxDto[] = [];
     for (const info of infos) {
       const payload: SignTxPayload = {
         index: info.accountIndex,
+        type,
         hex: info.rawTx.hex,
         prevouts: info.rawTx.prevouts,
         scriptHex: info.rawTx.scriptHex,
+        apiSignature: info.apiSignature,
+        masternodeSignature: info.apiSignature, // TODO (Krysh) setup own node on masternode manager to do self signing & blockchain checks
       };
       const response: SignedTxPayload = await this.communication.query(Operation.SIGN_TX, payload);
       if (!response.isError) {
