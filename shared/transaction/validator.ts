@@ -1,4 +1,3 @@
-import { SignTxPayload, TxType } from '../../shared/communication/operation';
 import {
   CTransactionSegWit,
   Vout,
@@ -11,15 +10,8 @@ import {
 import { BigNumber } from '@defichain/jellyfish-api-core';
 
 export class Validator {
-  static isAllowed(tx: CTransactionSegWit, data: SignTxPayload, ownerScript: Script): boolean {
-    switch (data.type) {
-      case TxType.CREATE_MASTERNODE:
-        return Validator.createMasternode(tx, ownerScript);
-      case TxType.RESIGN_MASTERNODE:
-        return Validator.resignMasternode(tx);
-      default:
-        return false;
-    }
+  static isAllowed(tx: CTransactionSegWit, ownerScript: Script): boolean {
+    return Validator.createMasternode(tx, ownerScript) || Validator.resignMasternode(tx);
   }
 
   private static createMasternode(tx: CTransactionSegWit, ownerScript: Script): boolean {
@@ -50,6 +42,6 @@ export class Validator {
   }
 
   private static includesAll(haystack: OPCode[], needles: OPCode[]): boolean {
-    return needles.filter((needle) => haystack.includes(needle)).length === 1;
+    return needles.every((needle) => haystack.includes(needle));
   }
 }

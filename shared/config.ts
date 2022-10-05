@@ -30,6 +30,8 @@ class ConfigClass {
 
   wallet = {
     name: 'cold-wallet-a',
+    // TODO (Krysh) will be removed by an own backup & restore handling
+    seed: process.env.TEMPORARY_SEED,
   };
 }
 

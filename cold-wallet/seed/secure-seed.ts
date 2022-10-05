@@ -1,3 +1,4 @@
+import Config from '../../shared/config';
 import { Logger } from '../../shared/logger';
 
 export class SecureSeed {
@@ -9,31 +10,6 @@ export class SecureSeed {
   }
 
   static async read(): Promise<string[]> {
-    return [
-      'lesson',
-      'father',
-      'slam',
-      'jelly',
-      'toilet',
-      'banana',
-      'girl',
-      'eye',
-      'track',
-      'swamp',
-      'virtual',
-      'execute',
-      'attitude',
-      'sport',
-      'tip',
-      'churn',
-      'arrive',
-      'canal',
-      'firm',
-      'swarm',
-      'chalk',
-      'benefit',
-      'stock',
-      'economy',
-    ];
+    return Config.wallet.seed?.split(',') ?? [];
   }
 }
