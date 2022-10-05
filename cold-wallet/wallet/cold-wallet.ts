@@ -37,6 +37,10 @@ export class ColdWallet {
     );
   }
 
+  public async getName(): Promise<string> {
+    return Config.wallet.name;
+  }
+
   public async getAddress(index = 0): Promise<string> {
     if (!this.wallet) throw new Error('Wallet is not initialized');
     return this.wallet.get(index).getAddress();

@@ -20,13 +20,14 @@ class App {
 
     this.logger.info(await wallet.getAddress());
 
+    this.communication.on(Operation.RECEIVE_WALLET_NAME, () => wallet.getName());
     this.communication.on(Operation.SIGN_TX, (data: SignTxPayload) => wallet.signTx(data));
 
     await this.communication.connect();
 
     for (;;) {
       try {
-        await Util.sleep(1);
+        await Util.sleep(5);
       } catch (e) {
         this.logger.error(`Exception: ${e}`);
       }

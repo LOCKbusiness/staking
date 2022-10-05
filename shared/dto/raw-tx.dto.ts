@@ -8,6 +8,8 @@ export interface RawTx {
 
 export interface RawTxDto {
   id: string;
-  rawTx: RawTxDto;
+  rawTx: RawTx;
   accountIndex: number;
+  apiSignature: string;
+  masternodeSignature: string;
 }
