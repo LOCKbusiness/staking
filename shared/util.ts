@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { MainNet, Network, TestNet } from '@defichain/jellyfish-network';
 import { WhaleApiClient } from '@defichain/whale-api-client';
 import readline from 'readline';
@@ -118,18 +119,20 @@ export class Util {
     }
   }
 
-  // --- OCEAN UTIL --- //
-  static async waitForTx(txId: string, client: WhaleApiClient, timeout = 1200): Promise<string> {
-    const tx = await Util.poll(
-      () => client.transactions.get(txId),
-      (t) => t !== undefined,
-      5,
-      timeout,
-      true,
-    );
+  // --- FILE UTIL --- //
+  static readFile<T>(fileName: string): T {
+    return JSON.parse(this.readFileRaw(fileName));
+  }
 
-    if (tx) return tx.id;
+  static readFileRaw(fileName: string): string {
+    return fs.readFileSync(fileName).toString();
+  }
 
-    throw new Error(`Wait for TX ${txId} timed out`);
+  static writeFile<T>(fileName: string, content: T) {
+    this.writeFileRaw(fileName, JSON.stringify(content));
+  }
+
+  static writeFileRaw(fileName: string, content: string) {
+    fs.writeFileSync(fileName, content);
   }
 }

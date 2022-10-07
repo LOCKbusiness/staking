@@ -5,14 +5,11 @@ import { Util } from '../../shared/util';
 import { ColdWallet } from './cold-wallet';
 
 export class WalletHelper {
-  static generate() {
-    // generateMnemonicWords only allows for specific numbers
-    // using ColdWallet.NEEDED_SEED_LENGTH doesn't work
-    const seed = generateMnemonicWords(24, (numOfBytes) => {
-      const bytes = randomBytes(numOfBytes);
-      return Buffer.from(bytes);
-    });
-    SecureSeed.splitAndStore(seed);
+  static async generate(): Promise<ColdWallet> {
+    const seed = generateMnemonicWords(ColdWallet.NEEDED_SEED_LENGTH, randomBytes);
+    await SecureSeed.splitAndStore(seed);
+
+    return new ColdWallet(seed, Util.readNetwork());
   }
 
   static async restore(): Promise<ColdWallet> {

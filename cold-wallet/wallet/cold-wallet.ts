@@ -13,7 +13,7 @@ import { Validator } from '../../shared/transaction/validator';
 import { CheckSignature, Crypto } from '../../shared/crypto';
 
 export class ColdWallet {
-  public static NEEDED_SEED_LENGTH = 24;
+  public static NEEDED_SEED_LENGTH: 12 | 15 | 18 | 21 | 24 = 24;
 
   private readonly seed: string[];
   private readonly network: Network;
