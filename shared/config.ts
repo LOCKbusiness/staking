@@ -1,5 +1,15 @@
 import { config } from 'dotenv';
 
+interface WalletConfig {
+  name: string;
+  addressCount: number;
+  seed: {
+    length: 12 | 15 | 18 | 21 | 24;
+    shareCount: number;
+    thresholdCount: number;
+  };
+}
+
 class ConfigClass {
   api = {
     url: process.env.API_URL,
@@ -28,10 +38,14 @@ class ConfigClass {
     network: process.env.CHAIN_NETWORK,
   };
 
-  wallet = {
+  wallet: WalletConfig = {
     name: 'cold-wallet-a',
-    // TODO (Krysh) will be removed by an own backup & restore handling
-    seed: process.env.TEMPORARY_SEED,
+    addressCount: 1000,
+    seed: {
+      length: 24,
+      shareCount: 3,
+      thresholdCount: 2,
+    },
   };
 }
 

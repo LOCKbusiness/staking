@@ -5,5 +5,5 @@ declare module 'shamir' {
     threshold: number,
     secret: Buffer,
   ): { [key: string]: Uint8Array };
-  function join(parts: { [key: string]: Buffer }): Uint8Array;
+  function join(shares: { [key: string]: Buffer }): Uint8Array;
 }
