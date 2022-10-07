@@ -19,6 +19,7 @@ class App {
   }
 
   async run(): Promise<void> {
+    // generate new wallet
     this.logger.info('Generating new wallet ...');
     const wallet = await WalletHelper.generate();
     wallet.initialize();

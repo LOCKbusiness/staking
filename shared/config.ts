@@ -7,12 +7,14 @@ interface WalletConfig {
     length: 12 | 15 | 18 | 21 | 24;
     shareCount: number;
     thresholdCount: number;
+    fileName: (share: number) => string;
   };
 }
 
 class ConfigClass {
   api = {
     url: process.env.API_URL,
+    // TODO: use wallet address/signature?
     address: process.env.API_ADDRESS,
     signature: process.env.API_SIGNATURE,
   };
@@ -45,6 +47,7 @@ class ConfigClass {
       length: 24,
       shareCount: 3,
       thresholdCount: 2,
+      fileName: (share: number) => `${process.env.SEED_FILE_PATH}${share - 1}/share.shamir`,
     },
   };
 }
