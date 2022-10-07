@@ -5,21 +5,21 @@ const SECRET_ENCODING: BufferEncoding = 'utf-8';
 const SHARE_ENCODING: BufferEncoding = 'base64';
 
 export class Shamir {
-  static split(secret: string, shares: number, threshold: number): string[] {
+  static split(secret: string, shareCount: number, thresholdCount: number): string[] {
     const secretBytes = this.stringToBytes(secret, SECRET_ENCODING);
-    const parts = split(randomBytes, shares, threshold, secretBytes);
+    const shares = split(randomBytes, shareCount, thresholdCount, secretBytes);
 
     // add the index to share
-    return Object.entries(parts).map(([key, part]) => key + this.bytesToString(part, SHARE_ENCODING));
+    return Object.entries(shares).map(([key, share]) => key + this.bytesToString(share, SHARE_ENCODING));
   }
 
-  static join(parts: string[]): string {
+  static join(shares: string[]): string {
     // get the index from share
-    const partsObject = parts.reduce(
+    const sharesObject = shares.reduce(
       (prev, curr) => ({ ...prev, [curr.slice(0, 1)]: this.stringToBytes(curr.slice(1), SHARE_ENCODING) }),
       {},
     );
-    const recovered = join(partsObject);
+    const recovered = join(sharesObject);
 
     return this.bytesToString(recovered, SECRET_ENCODING);
   }

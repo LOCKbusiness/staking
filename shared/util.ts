@@ -1,6 +1,5 @@
 import fs from 'fs';
 import { MainNet, Network, TestNet } from '@defichain/jellyfish-network';
-import { WhaleApiClient } from '@defichain/whale-api-client';
 import readline from 'readline';
 import { Writable } from 'stream';
 import Config from './config';
