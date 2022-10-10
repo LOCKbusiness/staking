@@ -9,13 +9,3 @@ export interface SignedTxPayload {
   isError: boolean;
   signedTx: string;
 }
-
-export interface SignTxPayload {
-  index: number;
-  hex: string;
-  prevouts: Prevout[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  scriptHex: any;
-  apiSignature: string;
-  masternodeSignature: string;
-}

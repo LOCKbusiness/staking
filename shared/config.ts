@@ -19,16 +19,14 @@ class ConfigClass {
     signature: process.env.API_SIGNATURE,
   };
 
-  liquidity = {
-    walletAddress: process.env.LIQUIDITY_WALLET_ADDRESS ?? '',
-    signatureAddress: process.env.LIQUIDITY_SIGNATURE_ADDRESS ?? '',
+  signature = {
+    api: process.env.API_SIGN_ADDRESS ?? '',
+    txSigner: process.env.TRANSACTION_SIGNER_ADDRESS ?? '',
   };
 
   masternode = {
     collateral: 20000,
     fee: 10,
-
-    signatureAddress: process.env.MASTERNODE_SIGNATURE_ADDRESS ?? '',
   };
 
   ocean = {
