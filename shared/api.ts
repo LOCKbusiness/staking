@@ -15,13 +15,13 @@ export class Api {
     this.apiUrl = Config.api.url;
   }
 
-  // --- RAW-TX --- //
-  async getRawTxs(ownerWallet: string): Promise<RawTxDto[]> {
-    return this.callApi(`raw-tx?ownerWallet=${ownerWallet}`);
+  // --- Transaction --- //
+  async getTransactions(ownerWallet: string): Promise<RawTxDto[]> {
+    return this.callApi(`transaction/verified?ownerWallet=${ownerWallet}`);
   }
 
-  async uploadSignedTx(dto: SignedTxDto): Promise<void> {
-    return this.callApi(`raw-tx/${dto.id}`, 'PUT', dto);
+  async uploadSignedTransaction(dto: SignedTxDto): Promise<void> {
+    return this.callApi(`transaction/${dto.id}/signed`, 'PUT', dto);
   }
 
   // --- HELPER METHODS --- //

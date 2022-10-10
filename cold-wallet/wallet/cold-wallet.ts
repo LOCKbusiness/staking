@@ -3,14 +3,15 @@ import { JellyfishWallet, WalletHdNode } from '@defichain/jellyfish-wallet';
 import { WhaleWalletAccount, WhaleWalletAccountProvider } from '@defichain/whale-api-wallet';
 import { WhaleApiClient } from '@defichain/whale-api-client';
 import { Bip32Options, MnemonicHdNodeProvider } from '@defichain/jellyfish-wallet-mnemonic';
-import { CTransactionSegWit, Vout, toOPCodes } from '@defichain/jellyfish-transaction';
+import { CTransaction, CTransactionSegWit, Vout, toOPCodes } from '@defichain/jellyfish-transaction';
 import { Logger } from '../../shared/logger';
-import { SignedTxPayload, SignTxPayload } from '../../shared/communication/operation';
+import { SignedTxPayload } from '../../shared/communication/operation';
 import { BigNumber } from '@defichain/jellyfish-api-core';
 import { SmartBuffer } from 'smart-buffer';
 import Config from '../../shared/config';
 import { Validator } from '../../shared/transaction/validator';
 import { CheckSignature, Crypto } from '../../shared/crypto';
+import { RawTxDto } from '../../shared/dto/raw-tx.dto';
 
 export class ColdWallet {
   public static NEEDED_SEED_LENGTH = 24;
@@ -46,17 +47,17 @@ export class ColdWallet {
     return this.wallet.get(index).getAddress();
   }
 
-  public async signTx(data: SignTxPayload): Promise<SignedTxPayload> {
+  public async signTx(data: RawTxDto): Promise<SignedTxPayload> {
     if (!this.wallet) throw new Error('Wallet is not initialized');
 
     const check: Partial<CheckSignature> = {
-      message: data.hex,
+      message: data.rawTx.hex,
     };
     if (
-      !Crypto.verifySignature({ signature: data.apiSignature, address: Config.liquidity.signatureAddress, ...check }) ||
+      !Crypto.verifySignature({ signature: data.issuerSignature, address: Config.signature.api, ...check }) ||
       !Crypto.verifySignature({
-        signature: data.masternodeSignature,
-        address: Config.masternode.signatureAddress,
+        signature: data.verifierSignature,
+        address: Config.signature.txSigner,
         ...check,
       })
     ) {
@@ -65,22 +66,26 @@ export class ColdWallet {
     }
     this.logger.info('signature verification passed');
 
-    const account = this.wallet.get(data.index);
+    const accountIndex = data.payload?.accountIndex ?? 0;
+    this.logger.info(`using account index ${accountIndex}`);
+    const account = this.wallet.get(accountIndex);
 
-    const tx = this.parseTx(data.hex);
-    if (!Validator.isAllowed(tx, await account.getScript())) {
-      this.logger.warning('Transaction failed validation', data.hex);
+    const tx = this.parseTx(data.rawTx.hex);
+    if (!Validator.isAllowed(tx, await account.getScript(), await this.wallet.get(0).getScript())) {
+      this.logger.warning('Transaction failed validation', data.rawTx.hex);
       return { isError: true, signedTx: '' };
     }
     this.logger.info('validation passed');
 
     this.logger.info('signing tx');
     this.logger.info(' with', await account.getAddress());
-    const prevouts: Vout[] = data.prevouts.map((p) => {
+    const prevouts: Vout[] = data.rawTx.prevouts.map((p) => {
       return {
         // needs to be recreated as those are objects and not just data
         value: new BigNumber(p.value),
-        script: { stack: toOPCodes(SmartBuffer.fromBuffer(Buffer.from(data.scriptHex, 'hex'))) },
+        script: {
+          stack: toOPCodes(SmartBuffer.fromBuffer(Buffer.from(data.rawTx.scriptHex, 'hex'))),
+        },
         tokenId: p.tokenId,
       };
     });
@@ -94,9 +99,13 @@ export class ColdWallet {
     }
   }
 
-  private parseTx(hex: string): CTransactionSegWit {
+  private parseTx(hex: string): CTransaction | CTransactionSegWit {
     this.logger.info('parseTx');
-    return new CTransactionSegWit(SmartBuffer.fromBuffer(Buffer.from(hex, 'hex')));
+    this.logger.info(hex);
+    const smartBuffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'));
+    // TODO (Krysh) decide before really parsing if "normal" TX or SegWit
+    return new CTransaction(smartBuffer);
+    return new CTransactionSegWit(smartBuffer);
   }
 
   private bip32OptionsBasedOn(network: Network): Bip32Options {

@@ -1,5 +1,6 @@
 import { exit } from 'process';
-import { Operation, SignTxPayload } from '../shared/communication/operation';
+import { Operation } from '../shared/communication/operation';
+import { RawTxDto } from '../shared/dto/raw-tx.dto';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
 import { ManagerCommunication } from './communication/manager-communication';
@@ -18,10 +19,8 @@ class App {
     const wallet = await WalletHelper.restore();
     wallet.initialize();
 
-    this.logger.info(await wallet.getAddress());
-
     this.communication.on(Operation.RECEIVE_WALLET_NAME, () => wallet.getName());
-    this.communication.on(Operation.SIGN_TX, (data: SignTxPayload) => wallet.signTx(data));
+    this.communication.on(Operation.SIGN_TX, (data: RawTxDto) => wallet.signTx(data));
 
     await this.communication.connect();
 
