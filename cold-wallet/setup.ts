@@ -19,9 +19,14 @@ class App {
   }
 
   async run(): Promise<void> {
+    // get the pass code for seed encryption
+    const code = await Util.getCliInput('Please enter the seed pass code (numbers only, default: no pass code):', true);
+    if (code.match(/[^0-9]/)) throw new Error('Only numbers are allowed');
+    console.log('OK');
+
     // generate new wallet
     this.logger.info('Generating new wallet ...');
-    const wallet = await WalletHelper.generate();
+    const wallet = await WalletHelper.generate(code);
     wallet.initialize();
     this.logger.info(`   => Wallet '${await wallet.getName()}' initialized`);
 
