@@ -9,7 +9,7 @@ export class SecureSeed {
     const shares = Shamir.split(secret, Config.wallet.seed.shareCount, Config.wallet.seed.thresholdCount);
 
     // write to file
-    shares.forEach((share, i) => Util.writeFileRaw(Config.wallet.seed.fileName(i + 1), share));
+    shares.forEach((share, i) => Util.writeFileRaw(Config.wallet.seed.fileName(i), share));
   }
 
   static async read(): Promise<string[]> {

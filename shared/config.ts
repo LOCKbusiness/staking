@@ -47,7 +47,7 @@ class ConfigClass {
       length: 24,
       shareCount: 3,
       thresholdCount: 2,
-      fileName: (share: number) => `${process.env.SEED_FILE_PATH}${share - 1}/share.shamir`,
+      fileName: (share: number) => `${process.env.SEED_FILE_PATH}${share}/share.shamir`,
     },
   };
 }
