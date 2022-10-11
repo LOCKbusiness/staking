@@ -3,7 +3,7 @@ import { JellyfishWallet, WalletHdNode } from '@defichain/jellyfish-wallet';
 import { WhaleWalletAccount, WhaleWalletAccountProvider } from '@defichain/whale-api-wallet';
 import { WhaleApiClient } from '@defichain/whale-api-client';
 import { Bip32Options, MnemonicHdNodeProvider } from '@defichain/jellyfish-wallet-mnemonic';
-import { CTransaction, CTransactionSegWit, Vout, toOPCodes } from '@defichain/jellyfish-transaction';
+import { CTransactionSegWit, Vout, toOPCodes } from '@defichain/jellyfish-transaction';
 import { Logger } from '../../shared/logger';
 import { SignedTxPayload } from '../../shared/communication/operation';
 import { BigNumber } from '@defichain/jellyfish-api-core';
@@ -97,7 +97,7 @@ export class ColdWallet {
     }
   }
 
-  private parseTx(hex: string): CTransaction | CTransactionSegWit {
+  private parseTx(hex: string): CTransactionSegWit {
     this.logger.info('parseTx');
     this.logger.info(hex);
     return new CTransactionSegWit(SmartBuffer.fromBuffer(Buffer.from(hex, 'hex')));
