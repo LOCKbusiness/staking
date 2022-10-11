@@ -1,5 +1,5 @@
 import GPIO from 'rpi-gpio';
-import { debounceTime, filter, map, pairwise, Subject, switchMap } from 'rxjs';
+import { debounceTime, filter, map, Observable, pairwise, Subject, switchMap } from 'rxjs';
 
 export class Keypad {
   private readonly gpio = GPIO.promise;
@@ -34,12 +34,12 @@ export class Keypad {
     await this.gpio.destroy();
   }
 
-  readonly onKeyPress = this.$change.pipe(
+  readonly onKeyPress: Observable<string> = this.$change.pipe(
     debounceTime(25),
     switchMap(() => this.readKey()),
     pairwise(),
     filter(([prev, curr]) => curr != null && curr !== prev),
-    map(([_, curr]) => curr),
+    map(([_, curr]) => curr as string),
   );
 
   // --- HELPER METHODS --- //
