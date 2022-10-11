@@ -57,7 +57,7 @@ export class ColdWallet {
       !Crypto.verifySignature({ signature: data.issuerSignature, address: Config.signature.api, ...check }) ||
       !Crypto.verifySignature({
         signature: data.verifierSignature,
-        address: Config.signature.txSigner,
+        address: Config.signature.transactionChecker,
         ...check,
       })
     ) {

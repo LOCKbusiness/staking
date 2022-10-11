@@ -9,7 +9,7 @@ class ConfigClass {
 
   signature = {
     api: process.env.API_SIGN_ADDRESS ?? '',
-    txSigner: process.env.TRANSACTION_SIGNER_ADDRESS ?? '',
+    transactionChecker: process.env.TRANSACTION_CHECKER_ADDRESS ?? '',
   };
 
   masternode = {
