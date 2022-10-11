@@ -3,9 +3,12 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "cw": "ts-node --files cold-wallet/main.ts",
+    "build": "tsc --build",
+    "cw": "node dist/cold-wallet/main",
+    "cw:dev": "ts-node --files cold-wallet/main.ts",
     "cw-setup": "ts-node --files cold-wallet/setup.ts",
-    "mn": "ts-node masternode-manager/main.ts",
+    "mn": "node dist/masternode-manager/main",
+    "mn:dev": "ts-node masternode-manager/main.ts",
     "test": "jest",
     "lint": "eslint \"**/*.ts\" --no-fix"
   },
