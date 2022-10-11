@@ -6,14 +6,14 @@ import { ColdWallet } from './cold-wallet';
 import Config from '../../shared/config';
 
 export class WalletHelper {
-  static async generate(code: string): Promise<ColdWallet> {
+  static async generate(code = ''): Promise<ColdWallet> {
     const seed = generateMnemonicWords(Config.wallet.seed.length, randomBytes);
     await SecureSeed.splitAndStore(seed, code);
 
     return new ColdWallet(seed, Util.readNetwork());
   }
 
-  static async restore(code: string): Promise<ColdWallet> {
+  static async restore(code = ''): Promise<ColdWallet> {
     const seed = await SecureSeed.read(code);
     return new ColdWallet(seed, Util.readNetwork());
   }
