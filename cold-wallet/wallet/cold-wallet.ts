@@ -102,10 +102,7 @@ export class ColdWallet {
   private parseTx(hex: string): CTransaction | CTransactionSegWit {
     this.logger.info('parseTx');
     this.logger.info(hex);
-    const smartBuffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'));
-    // TODO (Krysh) decide before really parsing if "normal" TX or SegWit
-    return new CTransaction(smartBuffer);
-    return new CTransactionSegWit(smartBuffer);
+    return new CTransactionSegWit(SmartBuffer.fromBuffer(Buffer.from(hex, 'hex')));
   }
 
   private bip32OptionsBasedOn(network: Network): Bip32Options {
