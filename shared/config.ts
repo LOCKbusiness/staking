@@ -15,8 +15,6 @@ interface WalletConfig {
 class ConfigClass {
   api = {
     url: process.env.API_URL,
-    signMessage:
-      'By_signing_this_message,_you_confirm_to_LOCK_that_you_are_the_sole_owner_of_the_provided_Blockchain_address._Your_ID:_',
   };
 
   signature = {

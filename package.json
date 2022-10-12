@@ -5,10 +5,12 @@
   "scripts": {
     "build": "tsc --build",
     "cw": "node dist/cold-wallet/main",
-    "cw:dev": "ts-node --files cold-wallet/dev-main.ts",
+    "cw:dev": "ts-node --files cold-wallet/main.ts",
+    "cw:local": "ts-node --files cold-wallet/local-main.ts",
     "cw-setup": "ts-node --files cold-wallet/setup.ts",
     "mn": "node dist/masternode-manager/main",
     "mn:dev": "ts-node masternode-manager/main.ts",
+    "mn:local": "ts-node --files masternode-manager/main.ts",
     "shamir": "ts-node util/decrypt-shamir.ts",
     "test": "jest",
     "lint": "eslint \"**/*.ts\" --no-fix"

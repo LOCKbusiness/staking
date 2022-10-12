@@ -10,6 +10,10 @@ export interface ApiAuthenticationInfo {
   signature: string;
 }
 
+interface ApiSignMessage {
+  message: string;
+}
+
 export class Api {
   private readonly apiUrl;
 
@@ -34,6 +38,11 @@ export class Api {
     return this.callApi(`transaction/${dto.id}/signed`, 'PUT', dto);
   }
 
+  // --- SIGN MESSAGE --- //
+  async getSignMessage(address: string): Promise<string> {
+    return this.callApi<ApiSignMessage>(`auth/sign-message?address=${address}`).then((info) => info.message);
+  }
+
   // --- HELPER METHODS --- //
   private async callApi<T>(
     url: string,
@@ -53,8 +62,9 @@ export class Api {
   }
 
   private async getAccessToken(): Promise<string | undefined> {
+    if (!this.authenticationInfo) return undefined;
     // renew
-    if ((this.accessToken == null || this.expires == null || this.expires <= new Date()) && !this.authenticationInfo) {
+    if (this.accessToken == null || this.expires == null || this.expires <= new Date()) {
       const result = await axios.post<{ accessToken: string }>(`${this.apiUrl}/auth/sign-in`, this.authenticationInfo);
       this.accessToken = result.data.accessToken;
 

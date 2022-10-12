@@ -5,7 +5,7 @@ import { WhaleApiClient } from '@defichain/whale-api-client';
 import { Bip32Options, MnemonicHdNodeProvider } from '@defichain/jellyfish-wallet-mnemonic';
 import { CTransactionSegWit, Vout, toOPCodes } from '@defichain/jellyfish-transaction';
 import { Logger } from '../../shared/logger';
-import { SignedTxPayload } from '../../shared/communication/operation';
+import { SignedTxPayload, SignMessagePayload } from '../../shared/communication/operation';
 import { BigNumber } from '@defichain/jellyfish-api-core';
 import { SmartBuffer } from 'smart-buffer';
 import Config from '../../shared/config';
@@ -98,12 +98,12 @@ export class ColdWallet {
     }
   }
 
-  public async signMessage(message: string): Promise<string> {
+  public async signMessage(data: SignMessagePayload): Promise<string> {
     if (!this.wallet) throw new Error('Wallet is not initialized');
 
-    const account = await this.wallet.get(0);
-    const signedMessage = await signAsync(message, await account.privateKey(), true, this.network.messagePrefix);
-    return signedMessage.toString();
+    const account = await this.wallet.get(data.accountIndex);
+    const signedMessage = await signAsync(data.message, await account.privateKey(), true, this.network.messagePrefix);
+    return signedMessage.toString('base64');
   }
 
   private parseTx(hex: string): CTransactionSegWit {

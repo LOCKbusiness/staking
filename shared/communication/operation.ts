@@ -9,3 +9,8 @@ export interface SignedTxPayload {
   isError: boolean;
   signedTx: string;
 }
+
+export interface SignMessagePayload {
+  message: string;
+  accountIndex: number;
+}

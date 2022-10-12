@@ -1,9 +1,7 @@
 import { exit } from 'process';
-import { Operation } from '../shared/communication/operation';
+import { Operation, SignMessagePayload } from '../shared/communication/operation';
 import { RawTxDto } from '../shared/dto/raw-tx.dto';
 import { Logger } from '../shared/logger';
-import { KeyInput } from '../shared/peripheral/key-input';
-import { Color, Led } from '../shared/peripheral/led';
 import { Util } from '../shared/util';
 import { ManagerCommunication } from './communication/manager-communication';
 import { WalletHelper } from './wallet/wallet-helper';
@@ -26,7 +24,7 @@ class App {
       this.communication.on(Operation.RECEIVE_ADDRESS, () => wallet.getAddress());
 
       this.communication.on(Operation.SIGN_TX, (data: RawTxDto) => wallet.signTx(data));
-      this.communication.on(Operation.SIGN_MESSAGE, (data: string) => wallet.signMessage(data));
+      this.communication.on(Operation.SIGN_MESSAGE, (data: SignMessagePayload) => wallet.signMessage(data));
 
       await this.communication.connect();
 

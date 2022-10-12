@@ -4,7 +4,6 @@ import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
 import { ColdWalletCommunication } from './cold-wallet-communication';
 import { Api } from '../shared/api';
-import Config from '../shared/config';
 
 class App {
   private readonly communication: ColdWalletCommunication;
@@ -18,7 +17,14 @@ class App {
   }
 
   async run(): Promise<void> {
-    const ownerWallet = await this.setupNeededComponents();
+    let ownerWallet: string | undefined = undefined;
+    do {
+      ownerWallet = await this.setupNeededComponents();
+      if (!ownerWallet) {
+        this.logger.info('... retrying in 5 seconds ...');
+        await Util.sleep(5);
+      }
+    } while (!ownerWallet);
 
     for (;;) {
       try {
@@ -39,7 +45,7 @@ class App {
     }
   }
 
-  async setupNeededComponents(): Promise<string> {
+  async setupNeededComponents(): Promise<string | undefined> {
     try {
       await this.communication.connect();
 
@@ -47,17 +53,17 @@ class App {
       this.logger.info('Connected to wallet', ownerWallet);
 
       const address: string = await this.communication.query(Operation.RECEIVE_ADDRESS);
-      const signature: string = await this.communication.query(
-        Operation.SIGN_MESSAGE,
-        Config.api.signMessage + address,
-      );
+      const message = await this.api.getSignMessage(address);
+      const signature: string = await this.communication.query(Operation.SIGN_MESSAGE, {
+        message,
+        accountIndex: 0,
+      });
       this.api.setAuthentication({ address, signature });
       return ownerWallet;
     } catch (e) {
       await this.communication.disconnect();
-      this.logger.error(`Exception while setting up needed components\n${e}\n\n... retrying in 5 seconds...\n`);
-      await Util.sleep(5);
-      return this.setupNeededComponents();
+      this.logger.error(`Exception while setting up needed components: ${e}`);
+      return undefined;
     }
   }
 }
