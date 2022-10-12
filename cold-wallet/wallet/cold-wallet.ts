@@ -10,7 +10,7 @@ import { BigNumber } from '@defichain/jellyfish-api-core';
 import { SmartBuffer } from 'smart-buffer';
 import Config from '../../shared/config';
 import { Validator } from '../../shared/transaction/validator';
-import { CheckSignature, Crypto } from '../../shared/crypto';
+import { CheckSignature, Crypto } from '../../shared/crypto/crypto';
 import { RawTxDto } from '../../shared/dto/raw-tx.dto';
 
 export class ColdWallet {
