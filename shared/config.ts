@@ -20,6 +20,11 @@ class ConfigClass {
   signature = {
     api: process.env.API_SIGN_ADDRESS ?? '',
     transactionChecker: process.env.TRANSACTION_CHECKER_ADDRESS ?? '',
+    allowedMessages: {
+      regex: /^cfp-\d*-\d*:.*$/,
+      startsWith:
+        'By_signing_this_message,_you_confirm_to_LOCK_that_you_are_the_sole_owner_of_the_provided_Blockchain_address._Your_ID:_',
+    },
   };
 
   masternode = {

@@ -14,3 +14,8 @@ export interface SignMessagePayload {
   message: string;
   accountIndex: number;
 }
+
+export interface SignedMessagePayload {
+  isError: boolean;
+  signedMessage: string;
+}

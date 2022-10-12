@@ -8,8 +8,16 @@ import {
   ResignMasternode,
 } from '@defichain/jellyfish-transaction';
 import { BigNumber } from '@defichain/jellyfish-api-core';
+import Config from '../config';
 
 export class Validator {
+  static isMessageAllowed(message: string): boolean {
+    return (
+      message.toLowerCase().match(Config.signature.allowedMessages.regex) != null ||
+      message.startsWith(Config.signature.allowedMessages.startsWith)
+    );
+  }
+
   static isAllowed(tx: CTransactionSegWit, script: Script, liqScript: Script): boolean {
     return (
       Validator.createMasternode(tx, script) ||

@@ -1,5 +1,5 @@
 import { exit } from 'process';
-import { Operation, SignedTxPayload } from '../shared/communication/operation';
+import { Operation, SignedMessagePayload, SignedTxPayload } from '../shared/communication/operation';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
 import { ColdWalletCommunication } from './cold-wallet-communication';
@@ -54,11 +54,11 @@ class App {
 
       const address: string = await this.communication.query(Operation.RECEIVE_ADDRESS);
       const message = await this.api.getSignMessage(address);
-      const signature: string = await this.communication.query(Operation.SIGN_MESSAGE, {
+      const result: SignedMessagePayload = await this.communication.query(Operation.SIGN_MESSAGE, {
         message,
         accountIndex: 0,
       });
-      this.api.setAuthentication({ address, signature });
+      this.api.setAuthentication({ address, signature: result.signedMessage });
       return ownerWallet;
     } catch (e) {
       await this.communication.disconnect();
