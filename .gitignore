@@ -37,3 +37,6 @@ ormconfig.json
 .env
 placeholder.env
 placeholder.env
+
+# Custom
+/scripts
