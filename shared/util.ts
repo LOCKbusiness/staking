@@ -1,4 +1,5 @@
-import fs from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { dirname } from 'path';
 import { MainNet, Network, TestNet } from '@defichain/jellyfish-network';
 import readline from 'readline';
 import { Writable } from 'stream';
@@ -119,12 +120,17 @@ export class Util {
   }
 
   // --- FILE UTIL --- //
+  static ensureDir(filePath: string) {
+    const dir = dirname(filePath);
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  }
+
   static readFile<T>(fileName: string): T {
     return JSON.parse(this.readFileRaw(fileName));
   }
 
   static readFileRaw(fileName: string): string {
-    return fs.readFileSync(fileName).toString();
+    return readFileSync(fileName).toString();
   }
 
   static writeFile<T>(fileName: string, content: T) {
@@ -132,6 +138,6 @@ export class Util {
   }
 
   static writeFileRaw(fileName: string, content: string) {
-    fs.writeFileSync(fileName, content);
+    writeFileSync(fileName, content);
   }
 }

@@ -12,7 +12,7 @@ export class SecureSeed {
     // encrypt and write to file
     shares
       .map((share) => (code ? Encryption.encrypt(share, code) : share))
-      .forEach((share, i) => Util.writeFileRaw(Config.wallet.seed.writeFilePath(i), share));
+      .forEach((share, i) => this.writeShamirShare(i, share));
   }
 
   static async read(code: string): Promise<string[]> {
@@ -35,6 +35,14 @@ export class SecureSeed {
   }
 
   // --- HELPER METHODS --- //
+
+  private static writeShamirShare(share: number, content: string) {
+    const filePath = Config.wallet.seed.writeFilePath(share);
+
+    Util.ensureDir(filePath);
+    Util.writeFileRaw(filePath, content);
+  }
+
   private static readShamirShare(share: number): string | undefined {
     try {
       return Util.readFileRaw(Config.wallet.seed.readFilePath(share));
