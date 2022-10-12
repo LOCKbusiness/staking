@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc --build",
     "cw": "node dist/cold-wallet/main",
-    "cw:dev": "ts-node --files cold-wallet/main.ts",
+    "cw:dev": "ts-node --files cold-wallet/dev-main.ts",
     "cw-setup": "ts-node --files cold-wallet/setup.ts",
     "mn": "node dist/masternode-manager/main",
     "mn:dev": "ts-node masternode-manager/main.ts",

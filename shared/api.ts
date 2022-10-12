@@ -5,14 +5,24 @@ import { RawTxDto } from './dto/raw-tx.dto';
 import { SignedTxDto } from './dto/signed-tx.dto';
 import { Util } from './util';
 
+export interface ApiAuthenticationInfo {
+  address: string;
+  signature: string;
+}
+
 export class Api {
   private readonly apiUrl;
 
+  private authenticationInfo?: ApiAuthenticationInfo;
   private accessToken?: string;
   private expires?: Date;
 
   constructor() {
     this.apiUrl = Config.api.url;
+  }
+
+  setAuthentication(info: ApiAuthenticationInfo) {
+    this.authenticationInfo = info;
   }
 
   // --- Transaction --- //
@@ -44,11 +54,8 @@ export class Api {
 
   private async getAccessToken(): Promise<string | undefined> {
     // renew
-    if (this.accessToken == null || this.expires == null || this.expires <= new Date()) {
-      const result = await axios.post<{ accessToken: string }>(`${this.apiUrl}/auth/sign-in`, {
-        address: Config.api.address,
-        signature: Config.api.signature,
-      });
+    if ((this.accessToken == null || this.expires == null || this.expires <= new Date()) && !this.authenticationInfo) {
+      const result = await axios.post<{ accessToken: string }>(`${this.apiUrl}/auth/sign-in`, this.authenticationInfo);
       this.accessToken = result.data.accessToken;
 
       const jwt: { exp: number } = jwtDecode(this.accessToken);

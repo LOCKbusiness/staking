@@ -2,7 +2,9 @@ import { randomUUID } from 'crypto';
 import { Message } from './message';
 import { Operation } from './operation';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Subscriber = (payload: any) => Promise<any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Request = Message & { completed: (response: any) => void };
 
 export abstract class BaseCommunication {

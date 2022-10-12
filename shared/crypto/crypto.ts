@@ -29,7 +29,7 @@ export class Crypto {
     for (const flag of flags) {
       const flagByte = Buffer.alloc(1);
       flagByte.writeInt8(flag);
-      let sigBuffer = Buffer.from(signature, 'base64').slice(1);
+      let sigBuffer = Buffer.from(signature, 'base64').subarray(1);
       sigBuffer = Buffer.concat([flagByte, sigBuffer]);
       const candidateSig = sigBuffer.toString('base64');
       try {

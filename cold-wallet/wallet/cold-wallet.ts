@@ -12,6 +12,7 @@ import Config from '../../shared/config';
 import { Validator } from '../../shared/transaction/validator';
 import { CheckSignature, Crypto } from '../../shared/crypto/crypto';
 import { RawTxDto } from '../../shared/dto/raw-tx.dto';
+import { signAsync } from 'bitcoinjs-message';
 
 export class ColdWallet {
   private readonly seed: string[];
@@ -95,6 +96,14 @@ export class ColdWallet {
       this.logger.error(`While signing tx: ${e}`);
       return { isError: true, signedTx: '' };
     }
+  }
+
+  public async signMessage(message: string): Promise<string> {
+    if (!this.wallet) throw new Error('Wallet is not initialized');
+
+    const account = await this.wallet.get(0);
+    const signedMessage = await signAsync(message, await account.privateKey(), true, this.network.messagePrefix);
+    return signedMessage.toString();
   }
 
   private parseTx(hex: string): CTransactionSegWit {

@@ -4,6 +4,7 @@ import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
 import { ColdWalletCommunication } from './cold-wallet-communication';
 import { Api } from '../shared/api';
+import Config from '../shared/config';
 
 class App {
   private readonly communication: ColdWalletCommunication;
@@ -21,6 +22,10 @@ class App {
 
     const ownerWallet: string = await this.communication.query(Operation.RECEIVE_WALLET_NAME);
     this.logger.info('Connected to wallet', ownerWallet);
+
+    const address: string = await this.communication.query(Operation.RECEIVE_ADDRESS);
+    const signature: string = await this.communication.query(Operation.SIGN_MESSAGE, Config.api.signMessage + address);
+    this.api.setAuthentication({ address, signature });
 
     for (;;) {
       try {
