@@ -1,7 +1,7 @@
 import Config from '../../shared/config';
-import { Shamir } from '../../shared/shamir';
+import { Shamir } from '../../shared/crypto/shamir';
 import { Util } from '../../shared/util';
-import { Encryption } from './encryption';
+import { Encryption } from '../../shared/crypto/encryption';
 
 export class SecureSeed {
   static async splitAndStore(seed: string[], code: string): Promise<void> {
