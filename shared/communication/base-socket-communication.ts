@@ -1,11 +1,8 @@
 import { Socket } from 'net';
-import { Logger } from '../logger';
 import { BaseCommunication } from './base-communication';
 import { Message } from './message';
 
 export abstract class BaseSocketCommunication extends BaseCommunication {
-  private readonly logger = new Logger('Socket Comm');
-
   private socketToServer?: Socket;
 
   abstract connectToPort(): number;

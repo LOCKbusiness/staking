@@ -18,14 +18,7 @@ class App {
   }
 
   async run(): Promise<void> {
-    await this.communication.connect();
-
-    const ownerWallet: string = await this.communication.query(Operation.RECEIVE_WALLET_NAME);
-    this.logger.info('Connected to wallet', ownerWallet);
-
-    const address: string = await this.communication.query(Operation.RECEIVE_ADDRESS);
-    const signature: string = await this.communication.query(Operation.SIGN_MESSAGE, Config.api.signMessage + address);
-    this.api.setAuthentication({ address, signature });
+    const ownerWallet = await this.setupNeededComponents();
 
     for (;;) {
       try {
@@ -43,6 +36,28 @@ class App {
       } finally {
         await Util.sleep(5);
       }
+    }
+  }
+
+  async setupNeededComponents(): Promise<string> {
+    try {
+      await this.communication.connect();
+
+      const ownerWallet: string = await this.communication.query(Operation.RECEIVE_WALLET_NAME);
+      this.logger.info('Connected to wallet', ownerWallet);
+
+      const address: string = await this.communication.query(Operation.RECEIVE_ADDRESS);
+      const signature: string = await this.communication.query(
+        Operation.SIGN_MESSAGE,
+        Config.api.signMessage + address,
+      );
+      this.api.setAuthentication({ address, signature });
+      return ownerWallet;
+    } catch (e) {
+      await this.communication.disconnect();
+      this.logger.error(`Exception while setting up needed components\n${e}\n\n... retrying in 5 seconds...\n`);
+      await Util.sleep(5);
+      return this.setupNeededComponents();
     }
   }
 }

@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto';
+import { Logger } from '../logger';
 import { Message } from './message';
 import { Operation } from './operation';
 
@@ -10,6 +11,7 @@ type Request = Message & { completed: (response: any) => void };
 export abstract class BaseCommunication {
   private readonly requests: Map<string, Request>;
   private readonly subscribers: Map<Operation, Subscriber>;
+  protected readonly logger = new Logger('Communication');
 
   constructor(private readonly timeout: number = 5) {
     this.requests = new Map();
@@ -53,9 +55,13 @@ export abstract class BaseCommunication {
       this.onResponse(message, request);
     } else {
       const actOn = this.subscribers.get(message.operation);
-      const payload = await actOn?.(message.payload);
-      if (payload) {
-        await this.send({ ...message, payload });
+      try {
+        const payload = await actOn?.(message.payload);
+        if (payload) {
+          await this.send({ ...message, payload });
+        }
+      } catch (e) {
+        this.logger.error(`Exception: ${e}`);
       }
     }
   }
