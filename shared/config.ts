@@ -41,7 +41,7 @@ class ConfigClass {
   };
 
   wallet: WalletConfig = {
-    name: 'cold-wallet-a',
+    name: process.env.WALLET_NAME ?? '',
     addressCount: 1000,
     seed: {
       length: 24,
