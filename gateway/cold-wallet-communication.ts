@@ -1,14 +1,14 @@
-import { BaseSerialCommunication } from '../shared/communication/base-serial-communication';
-// import { BaseSocketCommunication } from '../shared/communication/base-socket-communication';
+import { CommunicationType, ICommunication } from '../shared/communication/base/communication.interface';
+import { SerialCommunication } from '../shared/communication/serial-communication';
+import { SocketCommunication } from '../shared/communication/socket-communication';
 
-export class ColdWalletCommunication extends BaseSerialCommunication {
-  getPath(): string {
-    return '/dev/cu.usbserial-01434108';
+export class ColdWalletCommunication {
+  static create(type: CommunicationType): ICommunication {
+    switch (type) {
+      case CommunicationType.SERIAL:
+        return new SerialCommunication('/dev/cu.usbserial-01434108');
+      case CommunicationType.TCP:
+        return new SocketCommunication(9000);
+    }
   }
 }
-
-// export class ColdWalletCommunication extends BaseSocketCommunication {
-//   connectToPort(): number {
-//     return 9000;
-//   }
-// }

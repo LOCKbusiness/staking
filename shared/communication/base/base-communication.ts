@@ -1,14 +1,13 @@
 import { randomUUID } from 'crypto';
-import { Logger } from '../logger';
-import { Message } from './message';
-import { Operation } from './operation';
+import { Logger } from '../../logger';
+import { ICommunication, Subscriber } from './communication.interface';
+import { Message } from '../dto/message';
+import { Operation } from '../dto/operation';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Subscriber = (payload: any) => Promise<any>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Request = Message & { completed: (response: any) => void };
 
-export abstract class BaseCommunication {
+export abstract class BaseCommunication implements ICommunication {
   private readonly requests: Map<string, Request>;
   private readonly subscribers: Map<Operation, Subscriber>;
   protected readonly logger = new Logger('Communication');
