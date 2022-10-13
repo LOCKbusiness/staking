@@ -1,4 +1,5 @@
 import GPIO from 'rpi-gpio';
+import { Util } from '../util';
 
 export enum Color {
   RED = 'red',
@@ -14,7 +15,7 @@ export enum Color {
 export class Led {
   private readonly gpio = GPIO.promise;
 
-  private readonly pins = [1, 2, 3]; // RGB // TODO
+  private readonly pins = [36, 38, 40]; // RGB
   private readonly colors: { [color in Color]: boolean[] } = {
     [Color.RED]: [true, false, false],
     [Color.GREEN]: [false, true, false],
@@ -41,8 +42,7 @@ export class Led {
   }
 
   async set(color: Color): Promise<void> {
-    if (this.blinker) clearInterval(this.blinker);
-
+    await this.resetBlinker();
     await this.setColor(color);
   }
 
@@ -53,12 +53,14 @@ export class Led {
     setTimeout(async () => await this.setColor(previousColor), timeout * 1000);
   }
 
-  async blink(color: Color, interval = 0.5): Promise<void> {
-    const previousColor = this.currentColor;
+  async blink(color: Color, alternateColor = Color.BLACK, interval = 0.5): Promise<void> {
+    await this.resetBlinker();
 
+    let isActive = true;
     this.blinker = setInterval(async () => {
-      await this.setColor(this.currentColor === previousColor ? color : previousColor);
-    }, interval);
+      await this.setColor(isActive ? color : alternateColor);
+      isActive = !isActive;
+    }, interval * 1000);
   }
 
   // --- HELPER METHODS --- //
@@ -69,5 +71,12 @@ export class Led {
     }
 
     this.currentColor = color;
+  }
+
+  private async resetBlinker(): Promise<void> {
+    if (this.blinker) clearInterval(this.blinker);
+    this.blinker = undefined;
+
+    await Util.sleep(0.01);
   }
 }

@@ -3,6 +3,8 @@ import { Shamir } from '../../shared/crypto/shamir';
 import { Util } from '../../shared/util';
 import { Encryption } from '../../shared/crypto/encryption';
 
+const USB_COUNT = 8;
+
 export class SecureSeed {
   static async splitAndStore(seed: string[], code: string): Promise<void> {
     // generate shamir shares
@@ -18,7 +20,7 @@ export class SecureSeed {
   static async read(code: string): Promise<string[]> {
     // read the shares from file and decrypt
     const shares = [];
-    for (let i = 0; i < Config.wallet.seed.shareCount && shares.length < Config.wallet.seed.thresholdCount; i++) {
+    for (let i = 0; i < USB_COUNT && shares.length < Config.wallet.seed.thresholdCount; i++) {
       const share = this.readShamirShare(i);
       if (share) shares.push(code ? Encryption.decrypt(share, code) : share);
     }
