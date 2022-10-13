@@ -1,17 +1,18 @@
 import { exit } from 'process';
-import { Operation, SignedMessagePayload, SignedTxPayload } from '../shared/communication/operation';
+import { Operation, SignedMessagePayload, SignedTxPayload } from '../shared/communication/dto/operation';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
 import { ColdWalletCommunication } from './cold-wallet-communication';
 import { Api } from '../shared/api';
+import { CommunicationType, ICommunication } from '../shared/communication/base/communication.interface';
 
 class App {
-  private readonly communication: ColdWalletCommunication;
+  private readonly communication: ICommunication;
   private readonly logger: Logger;
   private readonly api: Api;
 
   constructor() {
-    this.communication = new ColdWalletCommunication();
+    this.communication = ColdWalletCommunication.create(CommunicationType.SERIAL);
     this.logger = new Logger('Gateway');
     this.api = new Api();
   }

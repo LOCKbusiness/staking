@@ -1,16 +1,18 @@
 import { Socket } from 'net';
-import { BaseCommunication } from './base-communication';
-import { Message } from './message';
+import { BaseCommunication } from './base/base-communication';
+import { Message } from './dto/message';
 
-export abstract class BaseSocketCommunication extends BaseCommunication {
+export class SocketCommunication extends BaseCommunication {
   private socketToServer?: Socket;
 
-  abstract connectToPort(): number;
+  constructor(private readonly port: number) {
+    super();
+  }
 
   async connect(): Promise<void> {
-    this.logger.info('trying to connect to', this.connectToPort());
+    this.logger.info('trying to connect to', this.port);
     this.socketToServer = new Socket();
-    this.socketToServer.connect(this.connectToPort());
+    this.socketToServer.connect(this.port);
     this.socketToServer.addListener('data', async (data) => {
       const message = JSON.parse(String(data)) as Message;
       this.logger.debug('received', message);

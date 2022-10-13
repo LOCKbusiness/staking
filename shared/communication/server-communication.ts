@@ -1,23 +1,21 @@
 import { Server, Socket } from 'net';
-import { BaseCommunication } from './base-communication';
-import { Message } from './message';
+import { BaseCommunication } from './base/base-communication';
+import { Message } from './dto/message';
 
-export abstract class BaseServerCommunication extends BaseCommunication {
+export class ServerCommunication extends BaseCommunication {
   private readonly server: Server;
   private connectedSocket?: Socket;
 
-  constructor() {
+  constructor(private readonly port: number) {
     super();
     this.server = new Server((socket) => {
       this.onSocketConnected(socket);
     });
   }
 
-  abstract listenOnPort(): number;
-
   async connect(): Promise<void> {
-    this.logger.info('listening on', this.listenOnPort());
-    this.server.listen(this.listenOnPort());
+    this.logger.info('listening on', this.port);
+    this.server.listen(this.port);
   }
 
   async disconnect(): Promise<void> {

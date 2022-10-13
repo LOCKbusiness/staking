@@ -5,7 +5,7 @@ import { WhaleApiClient } from '@defichain/whale-api-client';
 import { Bip32Options, MnemonicHdNodeProvider } from '@defichain/jellyfish-wallet-mnemonic';
 import { CTransactionSegWit, Vout, toOPCodes } from '@defichain/jellyfish-transaction';
 import { Logger } from '../../shared/logger';
-import { SignedMessagePayload, SignedTxPayload, SignMessagePayload } from '../../shared/communication/operation';
+import { SignedTxPayload, SignMessagePayload, SignedMessagePayload } from '../../shared/communication/dto/operation';
 import { BigNumber } from '@defichain/jellyfish-api-core';
 import { SmartBuffer } from 'smart-buffer';
 import Config from '../../shared/config';

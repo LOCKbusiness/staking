@@ -1,5 +1,6 @@
 import { exit } from 'process';
-import { Operation, SignMessagePayload } from '../shared/communication/operation';
+import { CommunicationType, ICommunication } from '../shared/communication/base/communication.interface';
+import { Operation, SignMessagePayload } from '../shared/communication/dto/operation';
 import { RawTxDto } from '../shared/dto/raw-tx.dto';
 import { Logger } from '../shared/logger';
 import { KeyInput } from '../shared/peripheral/key-input';
@@ -9,13 +10,13 @@ import { GatewayCommunication } from './communication/gateway-communication';
 import { WalletHelper } from './wallet/wallet-helper';
 
 class App {
-  private readonly communication: GatewayCommunication;
+  private readonly communication: ICommunication;
   private readonly logger: Logger;
 
   private readonly led: Led;
 
   constructor() {
-    this.communication = new GatewayCommunication();
+    this.communication = GatewayCommunication.create(CommunicationType.SERIAL);
     this.logger = new Logger('Cold Wallet');
     this.led = new Led();
   }
