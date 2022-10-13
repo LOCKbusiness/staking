@@ -12,7 +12,7 @@ import Config from '../config';
 
 export class Validator {
   static isMessageAllowed(message: string): boolean {
-    return Config.signature.allowedMessages.filter((regex) => message.match(regex) != null).length > 0;
+    return Boolean(Config.signature.allowedMessages.find((regex) => message.match(regex)));
   }
 
   static isAllowed(tx: CTransactionSegWit, script: Script, liqScript: Script): boolean {
