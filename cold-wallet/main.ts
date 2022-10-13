@@ -49,7 +49,7 @@ class App {
       await this.communication.connect();
 
       // wallet up
-      await this.led.set(Color.GREEN);
+      await this.led.blink(Color.GREEN, Color.BLACK, 1);
 
       // infinite loop
       for (;;) {
