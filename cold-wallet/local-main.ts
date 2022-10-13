@@ -3,15 +3,15 @@ import { Operation, SignMessagePayload } from '../shared/communication/operation
 import { RawTxDto } from '../shared/dto/raw-tx.dto';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
-import { ManagerCommunication } from './communication/manager-communication';
+import { GatewayCommunication } from './communication/gateway-communication';
 import { WalletHelper } from './wallet/wallet-helper';
 
 class App {
-  private readonly communication: ManagerCommunication;
+  private readonly communication: GatewayCommunication;
   private readonly logger: Logger;
 
   constructor() {
-    this.communication = new ManagerCommunication();
+    this.communication = new GatewayCommunication();
     this.logger = new Logger('Cold Wallet');
   }
 

@@ -12,7 +12,7 @@ class App {
 
   constructor() {
     this.communication = new ColdWalletCommunication();
-    this.logger = new Logger('Masternode Manager');
+    this.logger = new Logger('Gateway');
     this.api = new Api();
   }
 

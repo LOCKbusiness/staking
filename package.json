@@ -8,9 +8,9 @@
     "cw:dev": "ts-node --files cold-wallet/main.ts",
     "cw:local": "ts-node --files cold-wallet/local-main.ts",
     "cw-setup": "ts-node --files cold-wallet/setup.ts",
-    "mn": "node dist/masternode-manager/main",
-    "mn:dev": "ts-node masternode-manager/main.ts",
-    "mn:local": "ts-node --files masternode-manager/main.ts",
+    "gw": "node dist/gateway/main",
+    "gw:dev": "ts-node gateway/main.ts",
+    "gw:local": "ts-node --files gateway/main.ts",
     "shamir": "ts-node util/decrypt-shamir.ts",
     "test": "jest",
     "lint": "eslint \"**/*.ts\" --no-fix"
