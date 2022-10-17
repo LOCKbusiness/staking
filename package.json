@@ -8,6 +8,7 @@
     "cw:dev": "ts-node --files cold-wallet/main.ts",
     "cw:local": "ts-node --files cold-wallet/local-main.ts",
     "cw-setup": "ts-node --files cold-wallet/setup.ts",
+    "verify": "ts-node --files util/verify-shamir.ts",
     "gw": "node dist/gateway/main",
     "gw:dev": "ts-node gateway/main.ts",
     "gw:local": "ts-node --files gateway/main.ts",
