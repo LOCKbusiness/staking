@@ -7,7 +7,7 @@ export class SerialCommunication extends BaseCommunication {
   private serial: SerialPort = {} as SerialPort;
   private data = '';
 
-  constructor(private readonly path: string, private readonly baudRate = 115200, timeout = 5) {
+  constructor(private readonly path: string, private readonly baudRate = 115200, timeout = 600) {
     super(timeout);
   }
 
@@ -30,6 +30,8 @@ export class SerialCommunication extends BaseCommunication {
         }
       } catch (e) {
         console.error(`Invalid message: ${message}`);
+        this.serial.flush();
+        this.data = '';
       }
     });
   }

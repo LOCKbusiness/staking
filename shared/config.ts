@@ -26,11 +26,6 @@ class ConfigClass {
     ],
   };
 
-  masternode = {
-    collateral: 20000,
-    fee: 10,
-  };
-
   ocean = {
     url: process.env.OCEAN_URL,
     version: process.env.OCEAN_VERSION,
@@ -50,6 +45,10 @@ class ConfigClass {
       readFilePath: (share: number) => `${process.env.SEED_FILE_PATH}${share}/share.shamir`,
       writeFilePath: (share: number) => `shares/share${share}/share.shamir`,
     },
+  };
+
+  communication = {
+    serialPath: process.env.SERIAL_PATH ?? '',
   };
 }
 
