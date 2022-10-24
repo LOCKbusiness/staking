@@ -52,7 +52,7 @@ export class Validator {
   }
 
   private static sendToLiq(tx: CTransactionSegWit, script: Script): boolean {
-    return tx.vout.length === 1 && this.voutContains(tx.vout, [script.stack]);
+    return this.voutContains(tx.vout, [script.stack]);
   }
 
   private static voutContains(vout: Vout[], opCodes: OPCode[][]): boolean {
