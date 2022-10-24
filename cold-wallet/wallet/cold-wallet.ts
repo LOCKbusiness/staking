@@ -111,7 +111,6 @@ export class ColdWallet {
 
   private parseTx(hex: string): CTransactionSegWit {
     this.logger.info('parseTx');
-    this.logger.info(hex);
     return new CTransactionSegWit(SmartBuffer.fromBuffer(Buffer.from(hex, 'hex')));
   }
 
