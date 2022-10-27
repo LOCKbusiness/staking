@@ -30,18 +30,21 @@ class App {
     for (;;) {
       try {
         const rawTxDtos = await this.api.getTransactions(ownerWallet);
+        rawTxDtos.length > 0 && this.logger.info(`Signing ${rawTxDtos.length} transactions ...`);
+
         for (const dto of rawTxDtos) {
           const payload: SignedTxPayload = await this.communication.query(Operation.SIGN_TX, dto);
           if (!payload.isError) {
             await this.api.uploadSignedTransaction({ id: dto.id, hex: payload.signedTx });
+            this.logger.info(`   - ${dto.id} done`);
           } else {
-            this.logger.error('Received sign tx error from cold wallet');
+            this.logger.info(`   - ${dto.id} failed`);
           }
         }
       } catch (e) {
-        this.logger.error(`Exception: ${e}`);
+        this.logger.error(`Exception:`, e);
       } finally {
-        await Util.sleep(5);
+        await Util.sleep(30);
       }
     }
   }
