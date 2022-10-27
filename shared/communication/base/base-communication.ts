@@ -5,7 +5,7 @@ import { Message } from '../dto/message';
 import { Operation } from '../dto/operation';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Request = Message & { completed: (response: any) => void };
+type Request = { completed: (response: any) => void };
 
 export abstract class BaseCommunication implements ICommunication {
   private readonly requests: Map<string, Request>;
@@ -38,12 +38,16 @@ export abstract class BaseCommunication implements ICommunication {
 
     await this.send(message);
 
+    return this.waitForResponse(message.id);
+  }
+
+  private async waitForResponse<T>(id: string): Promise<T> {
     return new Promise((resolve, reject) => {
-      this.requests.set(message.id, { ...message, completed: resolve });
+      this.requests.set(id, { completed: resolve });
 
       // reject on timeout
       setTimeout(() => {
-        if (this.requests.delete(message.id)) reject(new Error('Query timed out'));
+        if (this.requests.delete(id)) reject(new Error('Query timed out'));
       }, this.timeout * 1000);
     });
   }
