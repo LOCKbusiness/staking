@@ -18,18 +18,11 @@ class App {
   }
 
   async run(): Promise<void> {
-    let ownerWallet: string | undefined = undefined;
-    do {
-      ownerWallet = await this.setupNeededComponents();
-      if (!ownerWallet) {
-        this.logger.info('... retrying in 5 seconds ...');
-        await Util.sleep(5);
-      }
-    } while (!ownerWallet);
+    const walletName = await this.setupNeededComponents();
 
     for (;;) {
       try {
-        const rawTxDtos = await this.api.getTransactions(ownerWallet);
+        const rawTxDtos = await this.api.getTransactions(walletName);
         rawTxDtos.length > 0 && this.logger.info(`Signing ${rawTxDtos.length} transactions ...`);
 
         for (const dto of rawTxDtos) {
@@ -42,32 +35,35 @@ class App {
           }
         }
       } catch (e) {
-        this.logger.error(`Exception:`, e);
+        this.logger.error(`Exception: ${e}`);
       } finally {
         await Util.sleep(30);
       }
     }
   }
 
-  async setupNeededComponents(): Promise<string | undefined> {
+  async setupNeededComponents(): Promise<string> {
     try {
       await this.communication.connect();
 
-      const ownerWallet: string = await this.communication.query(Operation.RECEIVE_WALLET_NAME);
-      this.logger.info('Connected to wallet', ownerWallet);
+      // get wallet name
+      const walletName: string = await this.communication.query(Operation.RECEIVE_WALLET_NAME);
+      this.logger.info('Connected to wallet', walletName);
 
+      // get API login credentials
       const address: string = await this.communication.query(Operation.RECEIVE_ADDRESS);
       const message = await this.api.getSignMessage(address);
       const result: SignedMessagePayload = await this.communication.query(Operation.SIGN_MESSAGE, {
         message,
         accountIndex: 0,
       });
+
       this.api.setAuthentication({ address, signature: result.signedMessage });
-      return ownerWallet;
+      return walletName;
     } catch (e) {
       await this.communication.disconnect();
-      this.logger.error(`Exception while setting up needed components: ${e}`);
-      return undefined;
+      this.logger.error(`Exception while setting up needed components:`, e);
+      throw e;
     }
   }
 }
