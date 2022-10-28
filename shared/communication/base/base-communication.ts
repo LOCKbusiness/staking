@@ -64,7 +64,7 @@ export abstract class BaseCommunication implements ICommunication {
           await this.send({ ...message, payload });
         }
       } catch (e) {
-        this.logger.error(`Exception: ${e}`);
+        this.logger.error(`Exception:`, e);
       }
     }
   }
