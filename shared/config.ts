@@ -13,6 +13,12 @@ interface WalletConfig {
 }
 
 class ConfigClass {
+  logger = {
+    printConsole: true,
+    printFile: true,
+    filePath: process.env.LOG_FILE_PATH ?? 'staking.log',
+  };
+
   api = {
     url: process.env.API_URL,
   };

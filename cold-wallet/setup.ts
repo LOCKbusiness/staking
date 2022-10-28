@@ -25,17 +25,17 @@ class App {
     console.log('OK');
 
     // generate new wallet
-    this.logger.info('Generating new wallet ...');
+    this.logger.info('generating new wallet ...');
     const wallet = await WalletHelper.generate(code);
     wallet.initialize();
-    this.logger.info(`   => Wallet '${await wallet.getName()}' initialized`);
+    this.logger.info(`   => wallet '${await wallet.getName()}' initialized`);
 
     // generate owner addresses
-    this.logger.info('Generating owner addresses ...');
+    this.logger.info('generating owner addresses ...');
     const fileName = `owner.json`;
     const addresses = await this.generateAddresses(wallet);
     Util.writeFile(fileName, addresses);
-    this.logger.info(`   => Owner address list written to file '${fileName}'`);
+    this.logger.info(`   => owner address list written to file '${fileName}'`);
 
     this.logger.info(`=== Wallet '${await wallet.getName()}' setup complete ===`);
   }

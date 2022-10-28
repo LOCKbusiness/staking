@@ -1,4 +1,5 @@
-export type LogPayload = object | string | unknown;
+import { appendFileSync } from 'fs';
+import Config from './config';
 
 export enum LogLevel {
   DEBUG,
@@ -10,23 +11,44 @@ export enum LogLevel {
 export class Logger {
   constructor(private readonly name: string, private readonly level = LogLevel.INFO) {}
 
-  debug(message: string, payload?: LogPayload): void {
-    if (this.level <= LogLevel.DEBUG) console.log(this.getMessage(message), payload ? payload : '');
+  debug(message: string, payload?: unknown): void {
+    if (this.level <= LogLevel.DEBUG) this.log(LogLevel.DEBUG, message, payload);
   }
 
-  info(message: string, payload?: LogPayload): void {
-    if (this.level <= LogLevel.INFO) console.log(this.getMessage(message), payload ? payload : '');
+  info(message: string, payload?: unknown): void {
+    if (this.level <= LogLevel.INFO) this.log(LogLevel.INFO, message, payload);
   }
 
-  warning(message: string, payload?: LogPayload): void {
-    if (this.level <= LogLevel.WARNING) console.warn(this.getMessage(message), payload ? payload : '');
+  warning(message: string, payload?: unknown): void {
+    if (this.level <= LogLevel.WARNING) this.log(LogLevel.WARNING, message, payload);
   }
 
-  error(message: string, payload?: LogPayload): void {
-    if (this.level <= LogLevel.ERROR) console.error(this.getMessage(message), payload ? payload : '');
+  error(message: string, payload?: unknown): void {
+    if (this.level <= LogLevel.ERROR) this.log(LogLevel.ERROR, message, payload);
   }
 
-  private getMessage(message: string): string {
-    return `${this.name} - ${new Date().toLocaleString()} - ${message}`;
+  private log(level: LogLevel, message: string, payload: unknown) {
+    Config.logger.printConsole && console.log(this.getMessage(level, message), payload ? payload : '');
+
+    Config.logger.printFile &&
+      appendFileSync(
+        Config.logger.filePath,
+        this.getMessage(level, message) + (payload ? ` ${this.payloadToString(payload)}` : '') + '\n',
+      );
+  }
+
+  private getMessage(level: LogLevel, message: string): string {
+    return `${new Date().toLocaleString()} - ${LogLevel[level]} - ${this.name} ${message}`;
+  }
+
+  private payloadToString(payload: unknown): string | undefined {
+    if (typeof payload === 'string') {
+      return payload;
+    }
+    if (payload instanceof Error) {
+      return payload.stack;
+    }
+
+    return JSON.stringify(payload);
   }
 }

@@ -25,7 +25,7 @@ export class ServerCommunication extends BaseCommunication {
   }
 
   async send(message: Message): Promise<void> {
-    this.logger.debug('sending\n', message);
+    this.logger.debug('sending', message);
     this.connectedSocket?.write(JSON.stringify(message));
   }
 

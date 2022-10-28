@@ -60,7 +60,7 @@ export class ColdWallet {
         ...check,
       })
     ) {
-      this.logger.warning('Transaction failed signature check');
+      this.logger.warning('TX failed signature check');
       return { isError: true, signedTx: '' };
     }
     this.logger.info('signature verification passed');
@@ -72,12 +72,12 @@ export class ColdWallet {
 
     const tx = this.parseTx(data.rawTx.hex);
     if (!Validator.isAllowed(tx, await account.getScript(), await this.wallet.get(0).getScript())) {
-      this.logger.warning('Transaction failed validation', data.rawTx.hex);
+      this.logger.warning('TX failed validation', data.id);
       return { isError: true, signedTx: '' };
     }
     this.logger.info('validation passed');
 
-    this.logger.info('signing tx');
+    this.logger.info('signing TX');
     this.logger.info(' with', await account.getAddress());
     const prevouts: Vout[] = data.rawTx.prevouts.map((p) => {
       return {
@@ -91,10 +91,10 @@ export class ColdWallet {
     });
     try {
       const signedTx = await account.signTx(tx, prevouts);
-      this.logger.info('signed tx');
+      this.logger.info('signed TX');
       return { isError: false, signedTx: new CTransactionSegWit(signedTx).toHex() };
     } catch (e) {
-      this.logger.error(`While signing tx: ${e}`);
+      this.logger.error(`error while signing TX:`, e);
       return { isError: true, signedTx: '' };
     }
   }
@@ -110,7 +110,7 @@ export class ColdWallet {
   }
 
   private parseTx(hex: string): CTransactionSegWit {
-    this.logger.info('parseTx');
+    this.logger.info('parsing TX');
     return new CTransactionSegWit(SmartBuffer.fromBuffer(Buffer.from(hex, 'hex')));
   }
 

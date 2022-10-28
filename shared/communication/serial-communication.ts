@@ -29,7 +29,7 @@ export class SerialCommunication extends BaseCommunication {
           this.data = '';
         }
       } catch (e) {
-        console.error(`Invalid message: ${message}`);
+        this.logger.error(`invalid message:`, message);
         this.serial.flush();
         this.data = '';
       }

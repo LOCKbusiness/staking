@@ -23,7 +23,7 @@ class App {
     for (;;) {
       try {
         const rawTxDtos = await this.api.getTransactions(walletName);
-        rawTxDtos.length > 0 && this.logger.info(`Signing ${rawTxDtos.length} transactions ...`);
+        rawTxDtos.length > 0 && this.logger.info(`signing ${rawTxDtos.length} transactions ...`);
 
         for (const dto of rawTxDtos) {
           const payload: SignedTxPayload = await this.communication.query(Operation.SIGN_TX, dto);
@@ -35,7 +35,7 @@ class App {
           }
         }
       } catch (e) {
-        this.logger.error(`Exception: ${e}`);
+        this.logger.error(`Exception:`, e);
       } finally {
         await Util.sleep(30);
       }
@@ -48,7 +48,7 @@ class App {
 
       // get wallet name
       const walletName: string = await this.communication.query(Operation.RECEIVE_WALLET_NAME);
-      this.logger.info('Connected to wallet', walletName);
+      this.logger.info('connected to wallet', walletName);
 
       // get API login credentials
       const address: string = await this.communication.query(Operation.RECEIVE_ADDRESS);
@@ -62,7 +62,7 @@ class App {
       return walletName;
     } catch (e) {
       await this.communication.disconnect();
-      this.logger.error(`Exception while setting up needed components:`, e);
+      this.logger.error(`exception while setting up needed components:`, e);
       throw e;
     }
   }
