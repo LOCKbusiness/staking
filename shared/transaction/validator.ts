@@ -4,6 +4,7 @@ import {
   OPCode,
   Script,
   OP_CODES,
+  OP_DEFI_TX,
   CreateMasternode,
   ResignMasternode,
 } from '@defichain/jellyfish-transaction';
@@ -32,15 +33,15 @@ export class Validator {
 
     return (
       tx.vout.length === 2 &&
-      this.voutHasWithAmount(tx.vout, new BigNumber(20000), ownerScript.stack) &&
-      this.voutHasWithAmount(tx.vout, new BigNumber(10), createMasternodeOPCodes)
+      this.voutHasAmountAndOPCodes(tx.vout[0], new BigNumber(10), createMasternodeOPCodes) &&
+      this.voutHasWithAmount(tx.vout[1], new BigNumber(20000), ownerScript)
     );
   }
 
   private static resignMasternode(tx: CTransactionSegWit): boolean {
     return (
       tx.vout.length === 1 &&
-      this.voutHasWithAmount(tx.vout, new BigNumber(0), [
+      this.voutHasAmountAndOPCodes(tx.vout[0], new BigNumber(0), [
         OP_CODES.OP_RETURN,
         OP_CODES.OP_DEFI_TX_RESIGN_MASTER_NODE(undefined as unknown as ResignMasternode),
       ])
@@ -59,10 +60,6 @@ export class Validator {
     return tx.vout.length === 1 && this.voutHas(tx.vout[0], script);
   }
 
-  private static voutContains(vout: Vout[], opCodes: OPCode[][]): boolean {
-    return opCodes.every((opCodes) => vout.filter((v) => this.includesAll(v.script.stack, opCodes)));
-  }
-
   private static voutHas(vout: Vout, script: Script): boolean {
     if (vout.script.stack.length !== script.stack.length) return false;
     return vout.script.stack.every(
@@ -70,11 +67,26 @@ export class Validator {
     );
   }
 
-  private static voutHasWithAmount(vout: Vout[], value: BigNumber, opCodes: OPCode[]): boolean {
-    return vout.filter((v) => v.value.isEqualTo(value) && this.includesAll(v.script.stack, opCodes)).length === 1;
+  private static voutHasWithAmount(vout: Vout, value: BigNumber, script: Script): boolean {
+    return vout.value.isEqualTo(value) && this.voutHas(vout, script);
   }
 
-  private static includesAll(haystack: OPCode[], needles: OPCode[]): boolean {
-    return needles.every((needle) => haystack.includes(needle));
+  private static voutHasAmountAndOPCodes(vout: Vout, value: BigNumber, opCodes: OPCode[]): boolean {
+    return vout.value.isEqualTo(value) && this.opCodesAreEqual(vout.script.stack, opCodes);
+  }
+
+  private static opCodesAreEqual(a: OPCode[], b: OPCode[]): boolean {
+    if (a.length !== b.length) return false;
+    const checks = a.map((code, index) =>
+      code.type === 'OP_DEFI_TX'
+        ? this.opDefiTxAreEqual(code as OP_DEFI_TX, b[index] as OP_DEFI_TX)
+        : code.type === b[index].type,
+    );
+    return !checks.includes(false);
+  }
+
+  private static opDefiTxAreEqual(a: OP_DEFI_TX, b: OP_DEFI_TX): boolean {
+    if ('tx' in a && 'tx' in b) return a.tx.name === b.tx.name;
+    return false;
   }
 }
