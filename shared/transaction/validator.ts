@@ -33,15 +33,15 @@ export class Validator {
 
     return (
       tx.vout.length === 2 &&
-      this.voutHasAmountAndOPCodes(tx.vout[0], new BigNumber(10), createMasternodeOPCodes) &&
-      this.voutHasWithAmount(tx.vout[1], new BigNumber(20000), ownerScript)
+      this.voutAmountAndOpCodesAreEqual(tx.vout[0], new BigNumber(10), createMasternodeOPCodes) &&
+      this.voutAmountAndScriptAreEqual(tx.vout[1], new BigNumber(20000), ownerScript)
     );
   }
 
   private static resignMasternode(tx: CTransactionSegWit): boolean {
     return (
       tx.vout.length === 1 &&
-      this.voutHasAmountAndOPCodes(tx.vout[0], new BigNumber(0), [
+      this.voutAmountAndOpCodesAreEqual(tx.vout[0], new BigNumber(0), [
         OP_CODES.OP_RETURN,
         OP_CODES.OP_DEFI_TX_RESIGN_MASTER_NODE(undefined as unknown as ResignMasternode),
       ])
@@ -52,26 +52,26 @@ export class Validator {
     return (
       tx.vout.length === 2 &&
       !tx.vout[0].script.stack.map((code) => `${code.type}`).includes('OP_DEFI_TX') &&
-      this.voutHas(tx.vout[1], script)
+      this.voutScriptIsEqual(tx.vout[1], script)
     );
   }
 
   private static sendToLiq(tx: CTransactionSegWit, script: Script): boolean {
-    return tx.vout.length === 1 && this.voutHas(tx.vout[0], script);
+    return tx.vout.length === 1 && this.voutScriptIsEqual(tx.vout[0], script);
   }
 
-  private static voutHas(vout: Vout, script: Script): boolean {
+  private static voutScriptIsEqual(vout: Vout, script: Script): boolean {
     if (vout.script.stack.length !== script.stack.length) return false;
     return vout.script.stack.every(
       (code, index) => code.asBuffer().toString() === script.stack[index].asBuffer().toString(),
     );
   }
 
-  private static voutHasWithAmount(vout: Vout, value: BigNumber, script: Script): boolean {
-    return vout.value.isEqualTo(value) && this.voutHas(vout, script);
+  private static voutAmountAndScriptAreEqual(vout: Vout, value: BigNumber, script: Script): boolean {
+    return vout.value.isEqualTo(value) && this.voutScriptIsEqual(vout, script);
   }
 
-  private static voutHasAmountAndOPCodes(vout: Vout, value: BigNumber, opCodes: OPCode[]): boolean {
+  private static voutAmountAndOpCodesAreEqual(vout: Vout, value: BigNumber, opCodes: OPCode[]): boolean {
     return vout.value.isEqualTo(value) && this.opCodesAreEqual(vout.script.stack, opCodes);
   }
 
