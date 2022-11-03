@@ -9,6 +9,13 @@ import {
   ResignMasternode,
   AnyAccountToAccount,
   CreateVault,
+  DepositToVault,
+  WithdrawFromVault,
+  TakeLoan,
+  PaybackLoan,
+  PoolAddLiquidity,
+  PoolRemoveLiquidity,
+  CompositeSwap,
 } from '@defichain/jellyfish-transaction';
 import { BigNumber } from '@defichain/jellyfish-api-core';
 import Config from '../config';
@@ -19,19 +26,20 @@ export class Validator {
   }
 
   static isAllowed(tx: CTransactionSegWit, script: Script, liqScript: Script): boolean {
-    console.log(Validator.createMasternode(tx, script));
-    console.log(Validator.resignMasternode(tx));
-    console.log(Validator.sendFromLiq(tx, liqScript));
-    console.log(Validator.sendToLiq(tx, liqScript));
-    console.log(Validator.sendAccountToAccount(tx));
-    console.log(Validator.createVault(tx, script));
     return (
       Validator.createMasternode(tx, script) ||
       Validator.resignMasternode(tx) ||
       Validator.sendFromLiq(tx, liqScript) ||
       Validator.sendToLiq(tx, liqScript) ||
       Validator.sendAccountToAccount(tx) ||
-      Validator.createVault(tx, script)
+      Validator.createVault(tx, script) ||
+      Validator.depositToVault(tx, script) ||
+      Validator.withdrawFromVault(tx, script) ||
+      Validator.takeLoan(tx, script) ||
+      Validator.paybackLoan(tx, script) ||
+      Validator.addPoolLiquidity(tx, script) ||
+      Validator.removePoolLiquidity(tx, script) ||
+      Validator.compositeSwap(tx, script)
     );
   }
 
@@ -81,12 +89,53 @@ export class Validator {
   }
 
   private static createVault(tx: CTransactionSegWit, script: Script): boolean {
+    return Validator.defiTx(tx, script, OP_CODES.OP_DEFI_TX_CREATE_VAULT(undefined as unknown as CreateVault), 2);
+  }
+
+  private static depositToVault(tx: CTransactionSegWit, script: Script): boolean {
+    return Validator.defiTx(tx, script, OP_CODES.OP_DEFI_TX_DEPOSIT_TO_VAULT(undefined as unknown as DepositToVault));
+  }
+
+  private static withdrawFromVault(tx: CTransactionSegWit, script: Script): boolean {
+    return Validator.defiTx(
+      tx,
+      script,
+      OP_CODES.OP_DEFI_TX_WITHDRAW_FROM_VAULT(undefined as unknown as WithdrawFromVault),
+    );
+  }
+
+  private static takeLoan(tx: CTransactionSegWit, script: Script): boolean {
+    return Validator.defiTx(tx, script, OP_CODES.OP_DEFI_TX_TAKE_LOAN(undefined as unknown as TakeLoan));
+  }
+
+  private static paybackLoan(tx: CTransactionSegWit, script: Script): boolean {
+    return Validator.defiTx(tx, script, OP_CODES.OP_DEFI_TX_PAYBACK_LOAN(undefined as unknown as PaybackLoan));
+  }
+
+  private static addPoolLiquidity(tx: CTransactionSegWit, script: Script): boolean {
+    return Validator.defiTx(
+      tx,
+      script,
+      OP_CODES.OP_DEFI_TX_POOL_ADD_LIQUIDITY(undefined as unknown as PoolAddLiquidity),
+    );
+  }
+
+  private static removePoolLiquidity(tx: CTransactionSegWit, script: Script): boolean {
+    return Validator.defiTx(
+      tx,
+      script,
+      OP_CODES.OP_DEFI_TX_POOL_REMOVE_LIQUIDITY(undefined as unknown as PoolRemoveLiquidity),
+    );
+  }
+
+  private static compositeSwap(tx: CTransactionSegWit, script: Script): boolean {
+    return Validator.defiTx(tx, script, OP_CODES.OP_DEFI_TX_COMPOSITE_SWAP(undefined as unknown as CompositeSwap));
+  }
+
+  private static defiTx(tx: CTransactionSegWit, script: Script, defiTx: OP_DEFI_TX, amount = 0): boolean {
     return (
       tx.vout.length === 2 &&
-      this.voutAmountAndOpCodesAreEqual(tx.vout[0], new BigNumber(2), [
-        OP_CODES.OP_RETURN,
-        OP_CODES.OP_DEFI_TX_CREATE_VAULT(undefined as unknown as CreateVault),
-      ]) &&
+      this.voutAmountAndOpCodesAreEqual(tx.vout[0], new BigNumber(amount), [OP_CODES.OP_RETURN, defiTx]) &&
       this.voutScriptIsEqual(tx.vout[1], script)
     );
   }
