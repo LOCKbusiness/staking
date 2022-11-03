@@ -32,25 +32,14 @@ class App {
 
     // generate owner addresses
     this.logger.info('generating owner addresses ...');
+    const addresses = await wallet.getAddresses(Config.wallet.addressCount);
+
+    // write to file
     const fileName = `owner.json`;
-    const addresses = await this.generateAddresses(wallet);
     Util.writeFile(fileName, addresses);
     this.logger.info(`   => owner address list written to file '${fileName}'`);
 
     this.logger.info(`=== Wallet '${await wallet.getName()}' setup complete ===`);
-  }
-
-  // --- HELPER METHODS --- //
-  private async generateAddresses(wallet: ColdWallet): Promise<OwnerAddress[]> {
-    const walletName = await wallet.getName();
-    const addresses: OwnerAddress[] = [];
-
-    for (let i = 0; i < Config.wallet.addressCount; i++) {
-      const address = await wallet.getAddress(i);
-      addresses.push({ wallet: walletName, index: i, address: address });
-    }
-
-    return addresses;
   }
 }
 

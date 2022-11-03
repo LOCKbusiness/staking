@@ -14,6 +14,12 @@ import { CheckSignature, Crypto } from '../../shared/crypto/crypto';
 import { RawTxDto } from '../../shared/dto/raw-tx.dto';
 import { signAsync } from 'bitcoinjs-message';
 
+interface OwnerAddress {
+  wallet: string;
+  index: number;
+  address: string;
+}
+
 export class ColdWallet {
   private readonly seed: string[];
   private readonly network: Network;
@@ -44,6 +50,18 @@ export class ColdWallet {
   public async getAddress(index = 0): Promise<string> {
     if (!this.wallet) throw new Error('Wallet is not initialized');
     return this.wallet.get(index).getAddress();
+  }
+
+  public async getAddresses(count: number): Promise<OwnerAddress[]> {
+    const walletName = await this.getName();
+    const addresses: OwnerAddress[] = [];
+
+    for (let i = 0; i < count; i++) {
+      const address = await this.getAddress(i);
+      addresses.push({ wallet: walletName, index: i, address: address });
+    }
+
+    return addresses;
   }
 
   public async signTx(data: RawTxDto): Promise<SignedTxPayload> {

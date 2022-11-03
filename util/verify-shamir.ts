@@ -9,7 +9,7 @@ class App {
     const code = await Util.getCliInput('Please enter the pass code:', true);
 
     // read shares
-    const shares = [];
+    const shares: string[] = [];
     for (let i = 0; i < Config.wallet.seed.shareCount; i++) {
       const share = Util.readFileRaw(Config.wallet.seed.readFilePath(i));
       shares.push(code ? Encryption.decrypt(share, code) : share);
