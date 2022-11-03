@@ -7,6 +7,8 @@ import {
   OP_DEFI_TX,
   CreateMasternode,
   ResignMasternode,
+  AnyAccountToAccount,
+  CreateVault,
 } from '@defichain/jellyfish-transaction';
 import { BigNumber } from '@defichain/jellyfish-api-core';
 import Config from '../config';
@@ -17,11 +19,19 @@ export class Validator {
   }
 
   static isAllowed(tx: CTransactionSegWit, script: Script, liqScript: Script): boolean {
+    console.log(Validator.createMasternode(tx, script));
+    console.log(Validator.resignMasternode(tx));
+    console.log(Validator.sendFromLiq(tx, liqScript));
+    console.log(Validator.sendToLiq(tx, liqScript));
+    console.log(Validator.sendAccountToAccount(tx));
+    console.log(Validator.createVault(tx, script));
     return (
       Validator.createMasternode(tx, script) ||
       Validator.resignMasternode(tx) ||
       Validator.sendFromLiq(tx, liqScript) ||
-      Validator.sendToLiq(tx, liqScript)
+      Validator.sendToLiq(tx, liqScript) ||
+      Validator.sendAccountToAccount(tx) ||
+      Validator.createVault(tx, script)
     );
   }
 
@@ -58,6 +68,27 @@ export class Validator {
 
   private static sendToLiq(tx: CTransactionSegWit, script: Script): boolean {
     return tx.vout.length === 1 && this.voutScriptIsEqual(tx.vout[0], script);
+  }
+
+  private static sendAccountToAccount(tx: CTransactionSegWit): boolean {
+    return (
+      tx.vout.length === 2 &&
+      this.voutAmountAndOpCodesAreEqual(tx.vout[0], new BigNumber(0), [
+        OP_CODES.OP_RETURN,
+        OP_CODES.OP_DEFI_TX_ANY_ACCOUNT_TO_ACCOUNT(undefined as unknown as AnyAccountToAccount),
+      ])
+    );
+  }
+
+  private static createVault(tx: CTransactionSegWit, script: Script): boolean {
+    return (
+      tx.vout.length === 2 &&
+      this.voutAmountAndOpCodesAreEqual(tx.vout[0], new BigNumber(2), [
+        OP_CODES.OP_RETURN,
+        OP_CODES.OP_DEFI_TX_CREATE_VAULT(undefined as unknown as CreateVault),
+      ]) &&
+      this.voutScriptIsEqual(tx.vout[1], script)
+    );
   }
 
   private static voutScriptIsEqual(vout: Vout, script: Script): boolean {

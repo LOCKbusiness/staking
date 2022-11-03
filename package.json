@@ -11,7 +11,7 @@
     "verify": "ts-node --files util/verify-shamir.ts",
     "gw": "node dist/gateway/main",
     "gw:dev": "ts-node gateway/main.ts",
-    "gw:local": "ts-node --files gateway/main.ts",
+    "gw:local": "ts-node --files gateway/local-main.ts",
     "shamir": "ts-node util/decrypt-shamir.ts",
     "test": "jest",
     "lint": "eslint \"**/*.ts\" --no-fix"
