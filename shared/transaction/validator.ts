@@ -29,8 +29,9 @@ export class Validator {
     return (
       Validator.createMasternode(tx, script) ||
       Validator.resignMasternode(tx) ||
-      Validator.sendFromLiq(tx, liqScript) ||
-      Validator.sendToLiq(tx, liqScript) ||
+      Validator.sendFromLiq(tx, liqScript) || // & withdrawals
+      Validator.sendToLiq(tx, liqScript) || // & merge utxos
+      Validator.split(tx, liqScript) ||
       Validator.sendAccountToAccount(tx) ||
       Validator.createVault(tx, script) ||
       Validator.depositToVault(tx, script) ||
@@ -76,6 +77,10 @@ export class Validator {
 
   private static sendToLiq(tx: CTransactionSegWit, script: Script): boolean {
     return tx.vout.length === 1 && this.voutScriptIsEqual(tx.vout[0], script);
+  }
+
+  private static split(tx: CTransactionSegWit, script: Script): boolean {
+    return tx.vout.every((v) => this.voutScriptIsEqual(v, script));
   }
 
   private static sendAccountToAccount(tx: CTransactionSegWit): boolean {
