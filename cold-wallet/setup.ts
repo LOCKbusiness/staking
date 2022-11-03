@@ -2,14 +2,7 @@ import { exit } from 'process';
 import Config from '../shared/config';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
-import { ColdWallet } from './wallet/cold-wallet';
 import { WalletHelper } from './wallet/wallet-helper';
-
-interface OwnerAddress {
-  wallet: string;
-  index: number;
-  address: string;
-}
 
 class App {
   private readonly logger: Logger;
@@ -32,7 +25,7 @@ class App {
 
     // generate owner addresses
     this.logger.info('generating owner addresses ...');
-    const addresses = await wallet.getAddresses(Config.wallet.addressCount);
+    const addresses = await wallet.getAddresses(0, Config.wallet.addressCount);
 
     // write to file
     const fileName = `owner.json`;

@@ -1,5 +1,4 @@
 import { exit } from 'process';
-import { ColdWallet } from '../cold-wallet/wallet/cold-wallet';
 import { WalletHelper } from '../cold-wallet/wallet/wallet-helper';
 import Config from '../shared/config';
 import { Util } from '../shared/util';
@@ -12,7 +11,7 @@ class App {
     const wallet = await WalletHelper.restore(code);
     wallet.initialize();
 
-    const addresses = await wallet.getAddresses(Config.wallet.addressCount);
+    const addresses = await wallet.getAddresses(0, Config.wallet.addressCount);
 
     const fileName = 'owner.json';
     Util.writeFile(fileName, addresses);
