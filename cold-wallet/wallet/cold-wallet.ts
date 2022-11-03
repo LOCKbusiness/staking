@@ -52,11 +52,11 @@ export class ColdWallet {
     return this.wallet.get(index).getAddress();
   }
 
-  public async getAddresses(count: number): Promise<OwnerAddress[]> {
+  public async getAddresses(index: number, count: number): Promise<OwnerAddress[]> {
     const walletName = await this.getName();
     const addresses: OwnerAddress[] = [];
 
-    for (let i = 0; i < count; i++) {
+    for (let i = index; i < count; i++) {
       const address = await this.getAddress(i);
       addresses.push({ wallet: walletName, index: i, address: address });
     }
