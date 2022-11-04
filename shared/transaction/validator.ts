@@ -19,6 +19,8 @@ import {
 } from '@defichain/jellyfish-transaction';
 import { BigNumber } from '@defichain/jellyfish-api-core';
 import Config from '../config';
+import { Util } from '../util';
+import { TestNet } from '@defichain/jellyfish-network';
 
 export class Validator {
   static isMessageAllowed(message: string): boolean {
@@ -98,7 +100,7 @@ export class Validator {
       tx,
       script,
       OP_CODES.OP_DEFI_TX_CREATE_VAULT(undefined as unknown as CreateVault),
-      Config.defichain.vaultFee,
+      Util.readNetwork() === TestNet ? 1 : 2,
     );
   }
 

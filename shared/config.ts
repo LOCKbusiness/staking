@@ -39,7 +39,6 @@ class ConfigClass {
 
   defichain = {
     network: process.env.CHAIN_NETWORK,
-    vaultFee: +(process.env.VAULT_FEE ?? '2'),
   };
 
   wallet: WalletConfig = {
