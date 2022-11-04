@@ -94,7 +94,12 @@ export class Validator {
   }
 
   private static createVault(tx: CTransactionSegWit, script: Script): boolean {
-    return Validator.defiTx(tx, script, OP_CODES.OP_DEFI_TX_CREATE_VAULT(undefined as unknown as CreateVault), 2);
+    return Validator.defiTx(
+      tx,
+      script,
+      OP_CODES.OP_DEFI_TX_CREATE_VAULT(undefined as unknown as CreateVault),
+      Config.defichain.vaultFee,
+    );
   }
 
   private static depositToVault(tx: CTransactionSegWit, script: Script): boolean {
