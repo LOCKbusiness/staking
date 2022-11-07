@@ -14,6 +14,7 @@ interface WalletConfig {
 
 class ConfigClass {
   logger = {
+    cloudRole: 'lock-transaction-signer',
     printConsole: true,
     printFile: true,
     filePath: process.env.LOG_FILE_PATH ?? 'staking.log',
