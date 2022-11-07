@@ -37,7 +37,7 @@ class App {
       } catch (e) {
         this.logger.error(`Exception:`, e);
       } finally {
-        await Util.sleep(30);
+        await Util.sleep(15);
       }
     }
   }

@@ -13,6 +13,7 @@
     "gw:dev": "ts-node gateway/main.ts",
     "gw:local": "ts-node --files gateway/local-main.ts",
     "shamir": "ts-node util/decrypt-shamir.ts",
+    "addresses": "ts-node --files util/generate-addresses.ts",
     "test": "jest",
     "lint": "eslint \"**/*.ts\" --no-fix"
   },
