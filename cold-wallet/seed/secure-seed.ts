@@ -1,7 +1,7 @@
 import Config from '../../shared/config';
-import { Shamir } from '../../shared/crypto/shamir';
+import { Shamir } from '../crypto/shamir';
 import { Util } from '../../shared/util';
-import { Encryption } from '../../shared/crypto/encryption';
+import { Encryption } from '../crypto/encryption';
 
 const USB_COUNT = 8;
 

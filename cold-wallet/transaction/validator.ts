@@ -18,8 +18,8 @@ import {
   CompositeSwap,
 } from '@defichain/jellyfish-transaction';
 import { BigNumber } from '@defichain/jellyfish-api-core';
-import Config from '../config';
-import { Util } from '../util';
+import Config from '../../shared/config';
+import { Util } from '../../shared/util';
 import { TestNet } from '@defichain/jellyfish-network';
 
 export class Validator {

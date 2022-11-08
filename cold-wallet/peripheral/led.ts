@@ -1,5 +1,5 @@
 import GPIO from 'rpi-gpio';
-import { Util } from '../util';
+import { Util } from '../../shared/util';
 
 export enum Color {
   RED = 'red',

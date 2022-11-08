@@ -14,8 +14,9 @@ export class Logger {
     // Azure application insights
     if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING) {
       AppInsights.setup().setAutoDependencyCorrelation(true).setAutoCollectConsole(true, true);
-      AppInsights.defaultClient.context.tags[AppInsights.defaultClient.context.keys.cloudRole] =
-        Config.logger.cloudRole;
+      AppInsights.defaultClient.context.tags[AppInsights.defaultClient.context.keys.cloudRole] = Config.logger.role;
+      AppInsights.defaultClient.context.tags[AppInsights.defaultClient.context.keys.cloudRoleInstance] =
+        Config.logger.instance;
       AppInsights.start();
     }
   }

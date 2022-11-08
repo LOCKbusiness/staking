@@ -2,8 +2,8 @@ import { exit } from 'process';
 import { Operation, SignedMessagePayload, SignedTxPayload } from '../shared/communication/dto/operation';
 import { Logger } from '../shared/logger';
 import { Util } from '../shared/util';
-import { ColdWalletCommunication } from './cold-wallet-communication';
-import { Api } from '../shared/api';
+import { ColdWalletCommunication } from './communication/cold-wallet-communication';
+import { Api } from './api/api';
 import { CommunicationType, ICommunication } from '../shared/communication/base/communication.interface';
 
 class App {
