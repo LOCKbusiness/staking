@@ -1,9 +1,9 @@
 import axios, { AxiosRequestConfig, Method } from 'axios';
 import jwtDecode from 'jwt-decode';
-import Config from './config';
-import { RawTxDto } from './dto/raw-tx.dto';
-import { SignedTxDto } from './dto/signed-tx.dto';
-import { Util } from './util';
+import Config from '../../shared/config';
+import { RawTxDto } from '../../shared/dto/raw-tx.dto';
+import { SignedTxDto } from '../../shared/dto/signed-tx.dto';
+import { Util } from '../../shared/util';
 
 export interface ApiAuthenticationInfo {
   address: string;

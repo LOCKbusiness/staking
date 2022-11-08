@@ -3,8 +3,8 @@ import { CommunicationType, ICommunication } from '../shared/communication/base/
 import { Operation, SignMessagePayload } from '../shared/communication/dto/operation';
 import { RawTxDto } from '../shared/dto/raw-tx.dto';
 import { Logger } from '../shared/logger';
-import { KeyInput } from '../shared/peripheral/key-input';
-import { Color, Led } from '../shared/peripheral/led';
+import { KeyInput } from './peripheral/key-input';
+import { Color, Led } from './peripheral/led';
 import { Util } from '../shared/util';
 import { GatewayCommunication } from './communication/gateway-communication';
 import { WalletHelper } from './wallet/wallet-helper';

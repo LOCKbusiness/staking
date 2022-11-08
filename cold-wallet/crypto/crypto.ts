@@ -1,5 +1,5 @@
 import { verify } from 'bitcoinjs-message';
-import { Util } from '../util';
+import { Util } from '../../shared/util';
 
 export interface CheckSignature {
   message?: string;

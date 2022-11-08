@@ -1,6 +1,6 @@
 import { exit } from 'process';
 import Config from '../shared/config';
-import { Encryption } from '../shared/crypto/encryption';
+import { Encryption } from '../cold-wallet/crypto/encryption';
 import { Util } from '../shared/util';
 
 class App {

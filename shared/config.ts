@@ -1,4 +1,5 @@
 import { config } from 'dotenv';
+import { machineIdSync } from 'node-machine-id';
 
 interface WalletConfig {
   name: string;
@@ -14,7 +15,8 @@ interface WalletConfig {
 
 class ConfigClass {
   logger = {
-    cloudRole: 'lock-transaction-signer',
+    role: 'lock-transaction-signer',
+    instance: machineIdSync(),
     printConsole: true,
     printFile: true,
     filePath: process.env.LOG_FILE_PATH ?? 'staking.log',
@@ -31,11 +33,6 @@ class ConfigClass {
       /^(?:cfp|dfip)-\d+-\d+-(?:yes|no|neutral)$/,
       /By_signing_this_message,_you_confirm_to_LOCK_that_you_are_the_sole_owner_of_the_provided_Blockchain_address._Your_ID:_.*/,
     ],
-  };
-
-  ocean = {
-    url: process.env.OCEAN_URL,
-    version: process.env.OCEAN_VERSION,
   };
 
   defichain = {

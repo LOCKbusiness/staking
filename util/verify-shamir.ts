@@ -1,7 +1,7 @@
 import { exit } from 'process';
 import Config from '../shared/config';
-import { Encryption } from '../shared/crypto/encryption';
-import { Shamir } from '../shared/crypto/shamir';
+import { Encryption } from '../cold-wallet/crypto/encryption';
+import { Shamir } from '../cold-wallet/crypto/shamir';
 import { Util } from '../shared/util';
 
 class App {
