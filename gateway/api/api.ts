@@ -55,7 +55,10 @@ export class Api {
       url: `${this.apiUrl}/${url}`,
       method,
       data,
-      headers: { Authorization: 'Bearer ' + (await this.getAccessToken()) },
+      headers: {
+        Authorization: 'Bearer ' + (await this.getAccessToken()),
+        'Device-Id': Config.deviceId,
+      },
     };
 
     return Util.retry(() => axios.request<T>(config).then((r) => r.data), tryCount, retryDelay);

@@ -14,9 +14,11 @@ interface WalletConfig {
 }
 
 class ConfigClass {
+  deviceId = machineIdSync();
+
   logger = {
     role: 'lock-transaction-signer',
-    instance: machineIdSync(),
+    instance: this.deviceId,
     printConsole: true,
     printFile: true,
     filePath: process.env.LOG_FILE_PATH ?? 'staking.log',
