@@ -20,6 +20,8 @@ export class SerialCommunication extends BaseCommunication {
     const device = devices.find((d) => this.possibleDevices.some((pd) => d.startsWith(pd)));
     if (!device) throw new Error('No serial device found');
 
+    this.logger.info(`found serial device ${device}`);
+
     this.serial = new SerialPort({ path: `${this.deviceBasePath}/${device}`, baudRate: this.baudRate });
 
     for (let i = 0; i < 10 && !this.serial.isOpen; i++) {
