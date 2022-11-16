@@ -52,10 +52,6 @@ class ConfigClass {
       writeFilePath: (share: number) => `shares/share${share}/share.shamir`,
     },
   };
-
-  communication = {
-    serialPath: process.env.SERIAL_PATH ?? '',
-  };
 }
 
 config();

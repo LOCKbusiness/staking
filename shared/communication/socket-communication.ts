@@ -3,9 +3,11 @@ import { BaseCommunication } from './base/base-communication';
 import { Message } from './dto/message';
 
 export class SocketCommunication extends BaseCommunication {
+  private readonly port = 9000;
+
   private socketToServer?: Socket;
 
-  constructor(private readonly port: number) {
+  constructor() {
     super();
   }
 

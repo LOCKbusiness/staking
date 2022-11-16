@@ -1,18 +1,26 @@
+import { readdirSync } from 'fs';
 import { SerialPort } from 'serialport';
 import { Util } from '../util';
 import { BaseCommunication } from './base/base-communication';
 import { Message } from './dto/message';
 
 export class SerialCommunication extends BaseCommunication {
+  private readonly deviceBasePath = '/dev';
+  private readonly possibleDevices = ['serial0', 'cu.usbserial'];
+
   private serial: SerialPort = {} as SerialPort;
   private data = '';
 
-  constructor(private readonly path: string, private readonly baudRate = 115200, timeout = 600) {
+  constructor(private readonly baudRate = 115200, timeout = 600) {
     super(timeout);
   }
 
   async connect(): Promise<void> {
-    this.serial = new SerialPort({ path: this.path, baudRate: this.baudRate });
+    const devices = readdirSync(this.deviceBasePath);
+    const device = devices.find((d) => this.possibleDevices.some((pd) => d.startsWith(pd)));
+    if (!device) throw new Error('No serial device found');
+
+    this.serial = new SerialPort({ path: `${this.deviceBasePath}/${device}`, baudRate: this.baudRate });
 
     for (let i = 0; i < 10 && !this.serial.isOpen; i++) {
       await Util.sleep(0.1);
@@ -37,7 +45,7 @@ export class SerialCommunication extends BaseCommunication {
   }
 
   disconnect(): Promise<void> {
-    this.checkOpen();
+    if (!this.serial.isOpen) return Promise.resolve();
 
     return new Promise((resolve, reject) => {
       this.serial.close((e) => (e ? reject(e) : resolve()));
