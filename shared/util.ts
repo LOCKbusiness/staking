@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, appendFileSync } from 'fs';
 import { dirname } from 'path';
 import { MainNet, Network, TestNet } from '@defichain/jellyfish-network';
 import readline from 'readline';
@@ -139,5 +139,13 @@ export class Util {
 
   static writeFileRaw(fileName: string, content: string) {
     writeFileSync(fileName, content);
+  }
+
+  static appendFile<T>(fileName: string, content: T) {
+    this.appendFileRaw(fileName, JSON.stringify(content));
+  }
+
+  static appendFileRaw(fileName: string, content: string) {
+    appendFileSync(fileName, content);
   }
 }
