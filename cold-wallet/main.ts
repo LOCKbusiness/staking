@@ -29,6 +29,8 @@ class App {
       const input = new KeyInput(this.led);
       await input.connect();
 
+      this.logger.info('waiting for seed pass code ...');
+
       // get the seed pass code
       await this.led.blink(Color.BLUE);
       const code = await input.readLine();
@@ -39,6 +41,8 @@ class App {
 
       const wallet = await WalletHelper.restore(code);
       wallet.initialize();
+
+      this.logger.info(`wallet ${await wallet.getName()} initialized`);
 
       this.communication.on(Operation.RECEIVE_WALLET_NAME, () => wallet.getName());
       this.communication.on(Operation.RECEIVE_ADDRESS, () => wallet.getAddress());
