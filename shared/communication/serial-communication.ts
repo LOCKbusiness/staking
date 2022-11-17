@@ -40,6 +40,7 @@ export class SerialCommunication extends BaseCommunication {
         }
       } catch (e) {
         this.logger.error(`invalid message:`, message);
+        this.cancelRequests();
         this.serial.flush();
         this.data = '';
       }
@@ -58,10 +59,5 @@ export class SerialCommunication extends BaseCommunication {
     return new Promise((resolve, reject) => {
       this.serial.write(JSON.stringify(message) + '\n', 'utf8', (e) => (e ? reject(e) : resolve()));
     });
-  }
-
-  // --- HELPER METHODS --- //
-  private checkOpen() {
-    if (!this.serial.isOpen) throw new Error('Serial port not open');
   }
 }

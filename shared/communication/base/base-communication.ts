@@ -5,7 +5,7 @@ import { Message } from '../dto/message';
 import { Operation } from '../dto/operation';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Request = { completed: (response: any) => void };
+type Request = { completed: (response: any) => void; failed: (error: any) => void };
 
 export abstract class BaseCommunication implements ICommunication {
   private readonly requests: Map<string, Request>;
@@ -43,12 +43,11 @@ export abstract class BaseCommunication implements ICommunication {
 
   private async waitForResponse<T>(id: string): Promise<T> {
     return new Promise((resolve, reject) => {
-      this.requests.set(id, { completed: resolve });
+      const request: Request = { completed: resolve, failed: reject };
+      this.requests.set(id, request);
 
       // reject on timeout
-      setTimeout(() => {
-        if (this.requests.delete(id)) reject(new Error('Query timed out'));
-      }, this.timeout * 1000);
+      setTimeout(() => this.onFail(id, new Error('Query timed out'), request), this.timeout * 1000);
     });
   }
 
@@ -70,7 +69,16 @@ export abstract class BaseCommunication implements ICommunication {
   }
 
   private onResponse(message: Message, request: Request): void {
-    request.completed(message.payload);
-    this.requests.delete(message.id);
+    if (this.requests.delete(message.id)) request.completed(message.payload);
+  }
+
+  private onFail(id: string, error: Error, request: Request): void {
+    if (this.requests.delete(id)) request.failed(error);
+  }
+
+  protected cancelRequests(): void {
+    for (const [id, request] of this.requests) {
+      this.onFail(id, new Error('Query cancelled'), request);
+    }
   }
 }
