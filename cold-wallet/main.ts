@@ -60,7 +60,7 @@ class App {
         await Util.sleep(5);
       }
     } catch (e) {
-      this.logger.error(`Exception:`, e);
+      this.logger.error(`exception:`, e);
       await this.led.set(Color.RED);
     }
   }

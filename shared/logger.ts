@@ -70,7 +70,7 @@ export class Logger {
       return payload;
     }
     if (payload instanceof Error) {
-      return payload.stack;
+      return payload.stack ?? `${payload.name}: ${payload.message}`;
     }
 
     return JSON.stringify(payload);

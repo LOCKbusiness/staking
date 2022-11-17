@@ -35,7 +35,7 @@ class App {
           }
         }
       } catch (e) {
-        this.logger.error(`Exception:`, e);
+        this.logger.error(`exception:`, e);
       } finally {
         await Util.sleep(15);
       }
