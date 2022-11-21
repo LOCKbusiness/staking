@@ -1,28 +1,26 @@
 import { exit } from 'process';
+import { Api } from '../gateway/api/api';
 import { ColdWalletCommunication } from '../gateway/communication/cold-wallet-communication';
 import { ICommunication, CommunicationType } from '../shared/communication/base/communication.interface';
 import { Operation, SignedMessagePayload, SignMessagePayload } from '../shared/communication/dto/operation';
 import { Util } from '../shared/util';
 
-interface Cfp {
-  name: string;
-  votes: { accountIndex: number; address: string; message: string }[];
-}
-
 class App {
-  private readonly votesFileName = 'votes.json';
-  private readonly signaturesFileName = 'signatures.txt';
+  private readonly roundId = `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+  private readonly signaturesFileName = `voting/signatures_${this.roundId}.txt`;
 
   private readonly communication: ICommunication;
+  private readonly api: Api;
 
   constructor() {
     this.communication = ColdWalletCommunication.create(CommunicationType.SERIAL);
+    this.api = new Api();
   }
 
   async run(): Promise<void> {
     await this.setupNeededComponents();
 
-    const cfpList = Util.readFile<Cfp[]>(this.votesFileName);
+    const cfpList = await this.api.getCfpVotingMessages();
     Util.writeFileRaw(this.signaturesFileName, '');
 
     let i = 1;
@@ -51,6 +49,16 @@ class App {
       // get wallet name
       const walletName: string = await this.communication.query(Operation.RECEIVE_WALLET_NAME);
       console.info('Connected to wallet', walletName);
+
+      // get API login credentials
+      const address: string = await this.communication.query(Operation.RECEIVE_ADDRESS);
+      const message = await this.api.getSignMessage(address);
+      const result: SignedMessagePayload = await this.communication.query(Operation.SIGN_MESSAGE, {
+        message,
+        accountIndex: 0,
+      });
+
+      this.api.setAuthentication({ address, signature: result.signedMessage });
     } catch (e) {
       await this.communication.disconnect();
       console.error(`Exception while setting up needed components:`, e);

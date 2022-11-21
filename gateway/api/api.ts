@@ -1,6 +1,7 @@
 import axios, { AxiosRequestConfig, Method } from 'axios';
 import jwtDecode from 'jwt-decode';
 import Config from '../../shared/config';
+import { CfpDto } from '../../shared/dto/cfp.dto';
 import { RawTxDto } from '../../shared/dto/raw-tx.dto';
 import { SignedTxDto } from '../../shared/dto/signed-tx.dto';
 import { Util } from '../../shared/util';
@@ -36,6 +37,11 @@ export class Api {
 
   async uploadSignedTransaction(dto: SignedTxDto): Promise<void> {
     return this.callApi(`transaction/${dto.id}/signed`, 'PUT', dto);
+  }
+
+  // --- CFP VOTING --- //
+  async getCfpVotingMessages(): Promise<CfpDto[]> {
+    return this.callApi(`voting/sign-messages`);
   }
 
   // --- SIGN MESSAGE --- //
