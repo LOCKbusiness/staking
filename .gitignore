@@ -40,3 +40,6 @@ placeholder.env
 
 # Custom
 /scripts
+/voting
+/test
+/shares
