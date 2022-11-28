@@ -22,6 +22,10 @@ import Config from '../../shared/config';
 import { Util } from '../../shared/util';
 import { TestNet } from '@defichain/jellyfish-network';
 
+const deniedTokens = [
+  0, // DFI on TestNet & MainNet
+];
+
 export class Validator {
   static isMessageAllowed(message: string): boolean {
     return Boolean(Config.signature.allowedMessages.find((regex) => message.match(regex)));
@@ -141,7 +145,18 @@ export class Validator {
   }
 
   private static compositeSwap(tx: CTransactionSegWit, script: Script): boolean {
+    // pre-filter check if any denied token is from or to
+    if (!Validator.areTokensAllowedForSwap(tx)) return false;
     return Validator.defiTx(tx, script, OP_CODES.OP_DEFI_TX_COMPOSITE_SWAP(undefined as unknown as CompositeSwap));
+  }
+
+  private static areTokensAllowedForSwap(tx: CTransactionSegWit): boolean {
+    if (tx.vout.length !== 2 || tx.vout[0].script.stack.length < 2) return false;
+    const defiTx = tx.vout[0].script.stack[1] as OP_DEFI_TX;
+    const fromTokenId = defiTx?.tx?.data?.poolSwap?.fromTokenId;
+    const toTokenId = defiTx?.tx?.data?.poolSwap?.toTokenId;
+    if (!fromTokenId || !toTokenId) return false;
+    return !(deniedTokens.includes(fromTokenId) || deniedTokens.includes(toTokenId));
   }
 
   private static defiTx(tx: CTransactionSegWit, script: Script, defiTx: OP_DEFI_TX, amount = 0): boolean {
