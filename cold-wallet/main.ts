@@ -8,6 +8,7 @@ import { Color, Led } from './peripheral/led';
 import { Util } from '../shared/util';
 import { GatewayCommunication } from './communication/gateway-communication';
 import { WalletHelper } from './wallet/wallet-helper';
+import Config from '../shared/config';
 
 class App {
   private readonly communication: ICommunication;
@@ -23,6 +24,8 @@ class App {
 
   async run(): Promise<void> {
     try {
+      this.logger.info(`running v${Config.version}`);
+
       // setup UI
       await this.led.connect();
 

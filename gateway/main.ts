@@ -5,6 +5,7 @@ import { Util } from '../shared/util';
 import { ColdWalletCommunication } from './communication/cold-wallet-communication';
 import { Api } from './api/api';
 import { CommunicationType, ICommunication } from '../shared/communication/base/communication.interface';
+import Config from '../shared/config';
 
 class App {
   private readonly communication: ICommunication;
@@ -18,6 +19,8 @@ class App {
   }
 
   async run(): Promise<void> {
+    this.logger.info(`running v${Config.version}`);
+
     const walletName = await this.setupNeededComponents();
 
     for (;;) {

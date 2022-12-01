@@ -15,6 +15,7 @@ interface WalletConfig {
 
 class ConfigClass {
   deviceId = machineIdSync();
+  version = process.env.npm_package_version;
 
   logger = {
     role: 'lock-transaction-signer',
