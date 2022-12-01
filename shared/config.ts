@@ -1,5 +1,6 @@
 import { config } from 'dotenv';
 import { machineIdSync } from 'node-machine-id';
+import { version } from '../package.json';
 
 interface WalletConfig {
   name: string;
@@ -15,7 +16,7 @@ interface WalletConfig {
 
 class ConfigClass {
   deviceId = machineIdSync();
-  version = process.env.npm_package_version;
+  version = version;
 
   logger = {
     role: 'lock-transaction-signer',
