@@ -3,29 +3,27 @@ import { CommunicationType, ICommunication } from '../shared/communication/base/
 import { Operation, SignMessagePayload } from '../shared/communication/dto/operation';
 import { RawTxDto } from '../shared/dto/raw-tx.dto';
 import { Logger } from '../shared/logger';
-import { KeyInput } from './peripheral/key-input';
-import { Color, Led } from './peripheral/led';
 import { Util } from '../shared/util';
 import { GatewayCommunication } from './communication/gateway-communication';
 import { WalletHelper } from './wallet/wallet-helper';
 import Config from '../shared/config';
 import { AlarmSystem } from './peripheral/alarm-system';
+import { UserInterface } from './ui/user-interface';
+import { UiState } from './ui/ui-state.enum';
 
 class App {
   private readonly communication: ICommunication;
   private readonly logger: Logger;
 
-  private readonly led: Led;
-  private readonly input: KeyInput;
+  private readonly ui: UserInterface;
   private readonly alarmSystem: AlarmSystem;
 
   constructor() {
     this.communication = GatewayCommunication.create(CommunicationType.SERIAL);
     this.logger = new Logger('Cold Wallet');
 
-    this.led = new Led();
-    this.input = new KeyInput(this.led);
-    this.alarmSystem = new AlarmSystem(this.led, this.input);
+    this.ui = new UserInterface();
+    this.alarmSystem = new AlarmSystem(this.ui);
   }
 
   async run(): Promise<void> {
@@ -33,19 +31,18 @@ class App {
       this.logger.info(`running v${Config.version}`);
 
       // setup UI
-      await this.led.connect();
-      await this.input.connect();
+      await this.ui.connect();
       await this.alarmSystem.connect();
 
       this.logger.info('waiting for seed pass code ...');
 
       // get the seed pass code
-      await this.led.blink(Color.BLUE);
-      const code = await this.input.readLine();
+      await this.ui.set(UiState.WAITING);
+      const code = await this.ui.readLine();
       if (code.match(/[^0-9]/)) throw new Error('Only numbers are allowed');
 
       // setup wallet and communication
-      await this.led.blink(Color.YELLOW);
+      await this.ui.set(UiState.LOADING);
 
       const wallet = await WalletHelper.restore(code);
       wallet.initialize();
@@ -61,7 +58,7 @@ class App {
       await this.communication.connect();
 
       // wallet up
-      await this.led.blink(Color.GREEN, Color.BLACK, 1);
+      await this.ui.set(UiState.RUNNING);
 
       // infinite loop
       for (;;) {
@@ -69,7 +66,7 @@ class App {
       }
     } catch (e) {
       this.logger.error(`exception:`, e);
-      await this.led.set(Color.RED);
+      await this.ui.set(UiState.ERROR);
     }
   }
 }
