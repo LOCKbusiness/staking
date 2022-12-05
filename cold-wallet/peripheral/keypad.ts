@@ -27,7 +27,7 @@ export class Keypad {
     }
 
     // add listener
-    GPIO.on('change', (_, v) => this.$change.next(v));
+    GPIO.on('change', (c, v) => this.rowPins.includes(c) && this.$change.next(v));
   }
 
   async disconnect() {

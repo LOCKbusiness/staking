@@ -9,17 +9,23 @@ import { Util } from '../shared/util';
 import { GatewayCommunication } from './communication/gateway-communication';
 import { WalletHelper } from './wallet/wallet-helper';
 import Config from '../shared/config';
+import { AlarmSystem } from './peripheral/alarm-system';
 
 class App {
   private readonly communication: ICommunication;
   private readonly logger: Logger;
 
   private readonly led: Led;
+  private readonly input: KeyInput;
+  private readonly alarmSystem: AlarmSystem;
 
   constructor() {
     this.communication = GatewayCommunication.create(CommunicationType.SERIAL);
     this.logger = new Logger('Cold Wallet');
+
     this.led = new Led();
+    this.input = new KeyInput(this.led);
+    this.alarmSystem = new AlarmSystem(this.led, this.input);
   }
 
   async run(): Promise<void> {
@@ -28,15 +34,14 @@ class App {
 
       // setup UI
       await this.led.connect();
-
-      const input = new KeyInput(this.led);
-      await input.connect();
+      await this.input.connect();
+      await this.alarmSystem.connect();
 
       this.logger.info('waiting for seed pass code ...');
 
       // get the seed pass code
       await this.led.blink(Color.BLUE);
-      const code = await input.readLine();
+      const code = await this.input.readLine();
       if (code.match(/[^0-9]/)) throw new Error('Only numbers are allowed');
 
       // setup wallet and communication
