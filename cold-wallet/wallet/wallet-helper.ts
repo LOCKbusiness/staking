@@ -1,6 +1,6 @@
 import { generateMnemonicWords } from '@defichain/jellyfish-wallet-mnemonic';
 import { randomBytes } from 'crypto';
-import { SecureSeed } from '../seed/secure-seed';
+import { SecureSeed } from './secure-seed';
 import { Util } from '../../shared/util';
 import { ColdWallet } from './cold-wallet';
 import Config from '../../shared/config';
