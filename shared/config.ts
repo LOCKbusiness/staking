@@ -4,7 +4,6 @@ import { version } from '../package.json';
 
 interface WalletConfig {
   name: string;
-  addressCount: number;
   seed: {
     length: 12 | 15 | 18 | 21 | 24;
     shareCount: number;
@@ -45,7 +44,6 @@ class ConfigClass {
 
   wallet: WalletConfig = {
     name: process.env.WALLET_NAME ?? '',
-    addressCount: 1000,
     seed: {
       length: 24,
       shareCount: 3,
