@@ -2,12 +2,13 @@ import GPIO from 'rpi-gpio';
 import { debounceTime, Subject } from 'rxjs';
 import { UiState } from '../ui/ui-state.enum';
 import { UserInterface } from '../ui/user-interface';
+import Shell from 'shelljs';
 
 export class AlarmSystem {
   private readonly gpio = GPIO.promise;
 
-  private readonly alarmPin = 0; // TODO
-  private readonly powerPin = 0; // TODO
+  private readonly alarmPin = 33; // TODO
+  // private readonly powerPin = 0; // TODO
 
   private readonly $change = new Subject<boolean>();
 
@@ -17,7 +18,7 @@ export class AlarmSystem {
 
   async connect() {
     await this.gpio.setup(this.alarmPin, 'in', 'both');
-    await this.gpio.setup(this.powerPin, 'high');
+    // await this.gpio.setup(this.powerPin, 'high');
 
     // add listener
     GPIO.on('change', (c, v) => c === this.alarmPin && this.$change.next(v));
@@ -47,7 +48,8 @@ export class AlarmSystem {
       }
     } finally {
       // power off
-      this.gpio.write(this.powerPin, false);
+      // this.gpio.write(this.powerPin, false);
+      Shell.exec('sudo shutdown -h now');
     }
   }
 }
