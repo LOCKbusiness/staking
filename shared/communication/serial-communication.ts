@@ -7,7 +7,7 @@ import { Message } from './dto/message';
 
 export class SerialCommunication extends BaseCommunication {
   private readonly deviceBasePath = '/dev';
-  private readonly possibleDevices = ['serial0', 'cu.usbserial'];
+  private readonly possibleDevices = ['serial0', 'cu.usbserial', 'ttyUSB0'];
 
   private serial: SerialPort = {} as SerialPort;
   private data = '';
