@@ -44,7 +44,7 @@ export class KeyInput {
   private onKeyPress(key: string): void {
     if (!this.resolve) return;
 
-    this.led.flash(Color.WHITE);
+    this.led.flash(Color.GREEN);
 
     if (key === ENTER_KEY) {
       this.resolve(this.line);
