@@ -32,7 +32,6 @@ class App {
 
       // setup UI
       await this.ui.connect();
-      await this.alarmSystem.connect();
 
       this.logger.info('waiting for seed pass code ...');
 
@@ -58,6 +57,7 @@ class App {
       await this.communication.connect();
 
       // wallet up
+      await this.alarmSystem.connect();
       await this.ui.set(UiState.RUNNING);
 
       // infinite loop

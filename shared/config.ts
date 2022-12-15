@@ -16,6 +16,7 @@ interface WalletConfig {
 class ConfigClass {
   deviceId = machineIdSync();
   version = version;
+  unlockPin = process.env.UNLOCK_PIN;
 
   logger = {
     role: 'lock-transaction-signer',
