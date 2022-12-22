@@ -54,6 +54,7 @@ export class AlarmSystem {
       if (pin !== Config.unlockPin) throw new Error('Wrong pin');
 
       this.hasAlarm = false;
+      await this.ui.showSuccess();
       await this.ui.set(UiState.RUNNING);
       return;
     } catch {
