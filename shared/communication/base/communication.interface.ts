@@ -1,7 +1,7 @@
 import { Operation } from '../dto/operation';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Subscriber = (payload: any) => Promise<any>;
+export type Subscriber = (payload: any) => Promise<any> | any;
 
 export enum CommunicationType {
   SERIAL,

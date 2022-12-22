@@ -16,6 +16,9 @@ export abstract class BaseCommunication implements ICommunication {
   constructor(private readonly ui?: UserInterface, private readonly timeout: number = 5) {
     this.requests = new Map();
     this.subscribers = new Map();
+
+    // setup ping response
+    this.on(Operation.PING, () => 'Pong');
   }
 
   abstract connect(): Promise<void>;
