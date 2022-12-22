@@ -1,4 +1,5 @@
 export enum Operation {
+  PING = 'ping',
   RECEIVE_WALLET_NAME = 'receive-wallet-name',
   RECEIVE_ADDRESS = 'receive-address',
   SIGN_TX = 'sign-tx',

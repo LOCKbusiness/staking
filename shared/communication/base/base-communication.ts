@@ -3,6 +3,7 @@ import { Logger } from '../../logger';
 import { ICommunication, Subscriber } from './communication.interface';
 import { Message } from '../dto/message';
 import { Operation } from '../dto/operation';
+import { UserInterface } from '../../../cold-wallet/ui/user-interface';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Request = { completed: (response: any) => void; failed: (error: any) => void };
@@ -12,7 +13,7 @@ export abstract class BaseCommunication implements ICommunication {
   private readonly subscribers: Map<Operation, Subscriber>;
   protected readonly logger = new Logger('Communication');
 
-  constructor(private readonly timeout: number = 5) {
+  constructor(private readonly ui?: UserInterface, private readonly timeout: number = 5) {
     this.requests = new Map();
     this.subscribers = new Map();
   }
@@ -52,6 +53,8 @@ export abstract class BaseCommunication implements ICommunication {
   }
 
   protected async onMessageReceived(message: Message): Promise<void> {
+    await this.ui?.showActivity();
+
     const request = this.requests.get(message.id);
     if (request) {
       this.onResponse(message, request);

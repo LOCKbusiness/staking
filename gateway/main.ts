@@ -26,16 +26,21 @@ class App {
     for (;;) {
       try {
         const rawTxDtos = await this.api.getTransactions(walletName);
-        rawTxDtos.length > 0 && this.logger.info(`signing ${rawTxDtos.length} transactions ...`);
 
-        for (const dto of rawTxDtos) {
-          const payload: SignedTxPayload = await this.communication.query(Operation.SIGN_TX, dto);
-          if (!payload.isError) {
-            await this.api.uploadSignedTransaction({ id: dto.id, hex: payload.signedTx });
-            this.logger.info(`   - ${dto.id} done`);
-          } else {
-            this.logger.info(`   - ${dto.id} failed`);
+        if (rawTxDtos.length > 0) {
+          this.logger.info(`signing ${rawTxDtos.length} transactions ...`);
+
+          for (const dto of rawTxDtos) {
+            const payload: SignedTxPayload = await this.communication.query(Operation.SIGN_TX, dto);
+            if (!payload.isError) {
+              await this.api.uploadSignedTransaction({ id: dto.id, hex: payload.signedTx });
+              this.logger.info(`   - ${dto.id} done`);
+            } else {
+              this.logger.info(`   - ${dto.id} failed`);
+            }
           }
+        } else {
+          await this.communication.query(Operation.PING);
         }
       } catch (e) {
         this.logger.error(`exception:`, e);
