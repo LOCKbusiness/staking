@@ -1,5 +1,6 @@
 import { readdirSync } from 'fs';
 import { SerialPort } from 'serialport';
+import { UserInterface } from '../../cold-wallet/ui/user-interface';
 import { Util } from '../util';
 import { BaseCommunication } from './base/base-communication';
 import { Message } from './dto/message';
@@ -11,8 +12,8 @@ export class SerialCommunication extends BaseCommunication {
   private serial: SerialPort = {} as SerialPort;
   private data = '';
 
-  constructor(private readonly baudRate = 115200, timeout = 600) {
-    super(timeout);
+  constructor(ui?: UserInterface, private readonly baudRate = 115200, timeout = 600) {
+    super(ui, timeout);
   }
 
   async connect(): Promise<void> {

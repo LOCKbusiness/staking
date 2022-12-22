@@ -22,6 +22,10 @@ export class UserInterface {
   }
 
   // --- OUTPUT --- //
+  async showActivity() {
+    await this.led.flash(Color.GREEN);
+  }
+
   async set(state: UiState) {
     switch (state) {
       case UiState.WAITING:
@@ -33,7 +37,7 @@ export class UserInterface {
         break;
 
       case UiState.RUNNING:
-        await this.led.blink(Color.GREEN, Color.BLACK, 1);
+        await this.led.set(Color.BLACK);
         break;
 
       case UiState.ALARM:
