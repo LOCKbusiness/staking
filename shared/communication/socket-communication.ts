@@ -1,4 +1,5 @@
 import { Socket } from 'net';
+import { UserInterface } from '../../cold-wallet/ui/user-interface';
 import { BaseCommunication } from './base/base-communication';
 import { Message } from './dto/message';
 
@@ -7,8 +8,8 @@ export class SocketCommunication extends BaseCommunication {
 
   private socketToServer?: Socket;
 
-  constructor() {
-    super();
+  constructor(ui?: UserInterface) {
+    super(ui);
   }
 
   async connect(): Promise<void> {

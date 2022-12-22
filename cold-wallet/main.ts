@@ -19,11 +19,11 @@ class App {
   private readonly alarmSystem: AlarmSystem;
 
   constructor() {
-    this.communication = GatewayCommunication.create(CommunicationType.SERIAL);
     this.logger = new Logger('Cold Wallet');
 
     this.ui = new UserInterface();
     this.alarmSystem = new AlarmSystem(this.ui);
+    this.communication = GatewayCommunication.create(CommunicationType.SERIAL, this.ui);
   }
 
   async run(): Promise<void> {
