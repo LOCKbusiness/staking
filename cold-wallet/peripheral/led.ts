@@ -28,6 +28,7 @@ export class Led {
   };
 
   private currentColor = Color.BLACK;
+  private isFlashing = false;
   private blinker?: NodeJS.Timer;
 
   async connect() {
@@ -47,10 +48,16 @@ export class Led {
   }
 
   async flash(color: Color, timeout = 0.1): Promise<void> {
+    if (this.isFlashing) return;
+
+    this.isFlashing = true;
     const previousColor = this.currentColor;
 
     await this.setColor(color);
-    setTimeout(async () => await this.setColor(previousColor), timeout * 1000);
+    setTimeout(async () => {
+      await this.setColor(previousColor);
+      this.isFlashing = false;
+    }, timeout * 1000);
   }
 
   async blink(color: Color, alternateColor = Color.BLACK, interval = 0.5): Promise<void> {
