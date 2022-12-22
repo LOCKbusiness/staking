@@ -57,8 +57,10 @@ class App {
       await this.communication.connect();
 
       // wallet up
-      await this.alarmSystem.connect();
       await this.ui.set(UiState.RUNNING);
+      await this.ui.showSuccess();
+
+      await this.alarmSystem.connect();
 
       // infinite loop
       for (;;) {
