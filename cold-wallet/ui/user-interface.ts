@@ -1,3 +1,4 @@
+import { Util } from '../../shared/util';
 import { KeyInput } from '../peripheral/key-input';
 import { Color, Led } from '../peripheral/led';
 import { UiState } from './ui-state.enum';
@@ -24,6 +25,13 @@ export class UserInterface {
   // --- OUTPUT --- //
   async showActivity() {
     await this.led.flash(Color.GREEN);
+  }
+
+  async showSuccess() {
+    for (let i = 0; i < 3; i++) {
+      await this.showActivity();
+      await Util.sleep(0.2);
+    }
   }
 
   async set(state: UiState) {
