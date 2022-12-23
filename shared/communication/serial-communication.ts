@@ -12,7 +12,7 @@ export class SerialCommunication extends BaseCommunication {
   private serial: SerialPort = {} as SerialPort;
   private data = '';
 
-  constructor(ui?: UserInterface, private readonly baudRate = 115200, timeout = 600) {
+  constructor(ui?: UserInterface, private readonly baudRate = 115200, timeout = 60) {
     super(ui, timeout);
   }
 
