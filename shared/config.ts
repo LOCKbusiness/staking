@@ -28,6 +28,7 @@ class ConfigClass {
 
   api = {
     url: process.env.API_URL,
+    pollInterval: 15, // seconds
   };
 
   signature = {

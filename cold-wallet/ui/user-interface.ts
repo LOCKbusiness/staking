@@ -7,6 +7,8 @@ export class UserInterface {
   private readonly led: Led;
   private readonly input: KeyInput;
 
+  private state?: UiState;
+
   constructor() {
     this.led = new Led();
     this.input = new KeyInput(this.led);
@@ -15,6 +17,7 @@ export class UserInterface {
   async connect() {
     await this.led.connect();
     await this.input.connect();
+    await this.setIdle();
   }
 
   // --- INPUT --- //
@@ -35,26 +38,33 @@ export class UserInterface {
   }
 
   async set(state: UiState) {
+    this.state = state;
+
     switch (state) {
       case UiState.WAITING:
         await this.led.blink(Color.BLUE);
-        break;
-
-      case UiState.LOADING:
-        await this.led.blink(Color.YELLOW);
-        break;
-
-      case UiState.RUNNING:
-        await this.led.set(Color.BLACK);
         break;
 
       case UiState.ALARM:
         await this.led.blink(Color.RED, Color.BLACK, 0.25);
         break;
 
+      case UiState.WARNING:
+        await this.led.blink(Color.RED, Color.BLACK, 1);
+        break;
+
       case UiState.ERROR:
         await this.led.set(Color.RED);
         break;
     }
+  }
+
+  async reset(state: UiState) {
+    if (this.state === state) await this.setIdle();
+  }
+
+  private async setIdle() {
+    this.state = undefined;
+    await this.led.set(Color.BLACK);
   }
 }

@@ -55,7 +55,7 @@ export class AlarmSystem {
 
       this.hasAlarm = false;
       await this.ui.showSuccess();
-      await this.ui.set(UiState.RUNNING);
+      await this.ui.reset(UiState.ALARM);
       return;
     } catch {
       // power off
