@@ -4,6 +4,8 @@ import { ICommunication, Subscriber } from './communication.interface';
 import { Message } from '../dto/message';
 import { Operation } from '../dto/operation';
 import { UserInterface } from '../../../cold-wallet/ui/user-interface';
+import Config from '../../config';
+import { UiState } from '../../../cold-wallet/ui/ui-state.enum';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Request = { completed: (response: any) => void; failed: (error: any) => void };
@@ -13,9 +15,13 @@ export abstract class BaseCommunication implements ICommunication {
   private readonly subscribers: Map<Operation, Subscriber>;
   protected readonly logger = new Logger('Communication');
 
+  private activityTimer?: NodeJS.Timer;
+
   constructor(private readonly ui?: UserInterface, private readonly timeout: number = 5) {
     this.requests = new Map();
     this.subscribers = new Map();
+
+    this.resetActivityTimer();
 
     // setup ping response
     this.on(Operation.PING, () => 'Pong');
@@ -56,6 +62,9 @@ export abstract class BaseCommunication implements ICommunication {
   }
 
   protected async onMessageReceived(message: Message): Promise<void> {
+    // show activity
+    this.resetActivityTimer();
+    await this.ui?.reset(UiState.WARNING);
     await this.ui?.showActivity();
 
     const request = this.requests.get(message.id);
@@ -80,6 +89,11 @@ export abstract class BaseCommunication implements ICommunication {
 
   private onFail(id: string, error: Error, request: Request): void {
     if (this.requests.delete(id)) request.failed(error);
+  }
+
+  private resetActivityTimer() {
+    clearTimeout(this.activityTimer);
+    this.activityTimer = setTimeout(() => this.ui?.set(UiState.WARNING), 2 * Config.api.pollInterval * 1000);
   }
 
   protected cancelRequests(): void {

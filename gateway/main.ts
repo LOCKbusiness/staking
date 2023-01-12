@@ -45,7 +45,7 @@ class App {
       } catch (e) {
         this.logger.error(`exception:`, e);
       } finally {
-        await Util.sleep(15);
+        await Util.sleep(Config.api.pollInterval);
       }
     }
   }

@@ -41,8 +41,6 @@ class App {
       if (code.match(/[^0-9]/)) throw new Error('Only numbers are allowed');
 
       // setup wallet and communication
-      await this.ui.set(UiState.LOADING);
-
       const wallet = await WalletHelper.restore(code);
       wallet.initialize();
 
@@ -57,7 +55,7 @@ class App {
       await this.communication.connect();
 
       // wallet up
-      await this.ui.set(UiState.RUNNING);
+      await this.ui.reset(UiState.WAITING);
       await this.ui.showSuccess();
 
       await this.alarmSystem.connect();
