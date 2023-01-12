@@ -1,26 +1,30 @@
 import GPIO from 'rpi-gpio';
-import { debounceTime, Subject } from 'rxjs';
 import { UiState } from '../ui/ui-state.enum';
 import { UserInterface } from '../ui/user-interface';
 import Shell from 'shelljs';
 import Config from '../../shared/config';
+import { InputPin } from './input-pin';
 
 export class AlarmSystem {
   private readonly gpio = GPIO.promise;
-  private readonly alarmPin = 33;
 
-  private readonly $change = new Subject<boolean>();
+  private readonly openPin = new InputPin(33, 'both', 500);
+  private readonly motionPin = new InputPin(7, 'both', 500);
 
   private hasAlarm = false;
+  private isOpen?: boolean = undefined;
 
   constructor(private readonly ui: UserInterface) {}
 
   async connect() {
-    await this.gpio.setup(this.alarmPin, 'in', 'both');
+    await this.openPin.setup();
+    await this.motionPin.setup();
 
-    // add listener
-    GPIO.on('change', (c, v) => c === this.alarmPin && this.$change.next(v));
-    this.$change.pipe(debounceTime(500)).subscribe((v) => !v && void this.onAlarm());
+    this.isOpen = !(await this.openPin.read());
+
+    // add listeners
+    this.openPin.onChange.subscribe((v) => this.onOpen(!v));
+    this.motionPin.onChange.subscribe((v) => this.onMotion(v));
   }
 
   async disconnect() {
@@ -28,6 +32,15 @@ export class AlarmSystem {
   }
 
   // --- HELPER METHODS --- //
+  private onOpen(isOpen: boolean) {
+    this.isOpen = isOpen;
+    if (isOpen) void this.onAlarm();
+  }
+
+  private onMotion(hasMotion: boolean) {
+    if (hasMotion && !this.isOpen) void this.onAlarm();
+  }
+
   private async onAlarm() {
     if (this.hasAlarm) return;
     this.hasAlarm = true;
