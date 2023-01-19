@@ -21,15 +21,19 @@ export abstract class BaseCommunication implements ICommunication {
     this.requests = new Map();
     this.subscribers = new Map();
 
-    this.resetActivityTimer();
-
     // setup ping response
     this.on(Operation.PING, () => 'Pong');
   }
 
-  abstract connect(): Promise<void>;
-  abstract disconnect(): Promise<void>;
-  abstract send(message: Message): Promise<void>;
+  async connect(): Promise<void> {
+    this.resetActivityTimer();
+
+    await this.start();
+  }
+
+  async disconnect(): Promise<void> {
+    await this.stop();
+  }
 
   on(operation: Operation, subscriber: Subscriber) {
     this.subscribers.set(operation, subscriber);
@@ -50,6 +54,12 @@ export abstract class BaseCommunication implements ICommunication {
 
     return this.waitForResponse(message.id);
   }
+
+  protected abstract start(): Promise<void>;
+  protected abstract stop(): Promise<void>;
+  abstract send(message: Message): Promise<void>;
+
+  // --- HELPER METHODS --- //
 
   private async waitForResponse<T>(id: string): Promise<T> {
     return new Promise((resolve, reject) => {

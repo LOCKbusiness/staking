@@ -12,7 +12,7 @@ export class SocketCommunication extends BaseCommunication {
     super(ui);
   }
 
-  async connect(): Promise<void> {
+  async start(): Promise<void> {
     this.logger.info('trying to connect to', this.port);
     this.socketToServer = new Socket();
     this.socketToServer.connect(this.port);
@@ -23,7 +23,7 @@ export class SocketCommunication extends BaseCommunication {
     });
   }
 
-  async disconnect(): Promise<void> {
+  async stop(): Promise<void> {
     this.logger.info('disconnecting');
     this.socketToServer?.destroy();
     this.socketToServer = undefined;
