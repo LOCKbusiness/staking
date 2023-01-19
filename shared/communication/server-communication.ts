@@ -16,12 +16,12 @@ export class ServerCommunication extends BaseCommunication {
     });
   }
 
-  async connect(): Promise<void> {
+  async start(): Promise<void> {
     this.logger.info('listening on', this.port);
     this.server.listen(this.port);
   }
 
-  async disconnect(): Promise<void> {
+  async stop(): Promise<void> {
     this.logger.info('disconnecting');
     this.connectedSocket?.destroy();
     this.connectedSocket = undefined;

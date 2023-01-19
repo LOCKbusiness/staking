@@ -16,7 +16,7 @@ export class SerialCommunication extends BaseCommunication {
     super(ui, timeout);
   }
 
-  async connect(): Promise<void> {
+  async start(): Promise<void> {
     const devices = readdirSync(this.deviceBasePath);
     const device = devices.find((d) => this.possibleDevices.some((pd) => d.startsWith(pd)));
     if (!device) throw new Error('No serial device found');
@@ -48,7 +48,7 @@ export class SerialCommunication extends BaseCommunication {
     });
   }
 
-  disconnect(): Promise<void> {
+  stop(): Promise<void> {
     if (!this.serial.isOpen) return Promise.resolve();
 
     return new Promise((resolve, reject) => {
