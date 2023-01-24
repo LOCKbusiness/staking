@@ -65,4 +65,24 @@ describe('Validator', () => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(Validator.isAllowed(tx, script!, script!)).toBeTruthy();
   });
+
+  it('should allow a vote without change script', () => {
+    const tx = receiveTxOf(
+      '04000000000101a4f9f60d4a61750d4b75e3c21dd203ed38ce4077e2e29dd7c094a21f5ce9be230000000000ffffffff010000000000000000486a46446654784f24eebd46843c778d855dc593c58a86d84193412c30aa8b84b92eb5957b80fbf9ded5125a4ab6b0b63a6a28b00140a83c5debd80051c7f3168941943ec1259115010001143faf3d07e5fa516122195bacd67a7436180b750200000000',
+    );
+    const liqScript = receiveScriptOf('tf1qyva5z5e7s5pzr0yhc3kk9ksn70lhhx6yxyuv2e');
+    const script = receiveScriptOf('tf1q87hn6pl9lfgkzgsetwkdv7n5xcvqkagztha6yn');
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    expect(Validator.isAllowed(tx, script!, liqScript!)).toBeTruthy();
+  });
+
+  it('should allow a vote with change script', () => {
+    const tx = receiveTxOf(
+      '04000000000101a4f9f60d4a61750d4b75e3c21dd203ed38ce4077e2e29dd7c094a21f5ce9be230000000000ffffffff020000000000000000486a46446654784f24eebd46843c778d855dc593c58a86d84193412c30aa8b84b92eb5957b80fbf9ded5125a4ab6b0b63a6a28b00140a83c5debd80051c7f3168941943ec1259115030027eae4e4d10100001600143faf3d07e5fa516122195bacd67a7436180b75020001143faf3d07e5fa516122195bacd67a7436180b750200000000',
+    );
+    const liqScript = receiveScriptOf('tf1qyva5z5e7s5pzr0yhc3kk9ksn70lhhx6yxyuv2e');
+    const script = receiveScriptOf('tf1q87hn6pl9lfgkzgsetwkdv7n5xcvqkagztha6yn');
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    expect(Validator.isAllowed(tx, script!, liqScript!)).toBeTruthy();
+  });
 });

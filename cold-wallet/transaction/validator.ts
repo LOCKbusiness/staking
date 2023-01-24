@@ -16,6 +16,7 @@ import {
   PoolAddLiquidity,
   PoolRemoveLiquidity,
   CompositeSwap,
+  Vote,
 } from '@defichain/jellyfish-transaction';
 import { BigNumber } from '@defichain/jellyfish-api-core';
 import Config from '../../shared/config';
@@ -35,6 +36,7 @@ export class Validator {
     return (
       Validator.createMasternode(tx, script) ||
       Validator.resignMasternode(tx) ||
+      Validator.voteMasternode(tx, script) ||
       Validator.sendFromLiq(tx, liqScript) || // & withdrawals
       Validator.sendToLiq(tx, liqScript) || // & merge utxos
       Validator.split(tx, liqScript) ||
@@ -70,6 +72,24 @@ export class Validator {
         OP_CODES.OP_RETURN,
         OP_CODES.OP_DEFI_TX_RESIGN_MASTER_NODE(undefined as unknown as ResignMasternode),
       ])
+    );
+  }
+
+  private static voteMasternode(tx: CTransactionSegWit, script: Script): boolean {
+    return (
+      // single or last vote
+      (tx.vout.length === 1 &&
+        this.voutAmountAndOpCodesAreEqual(tx.vout[0], new BigNumber(0), [
+          OP_CODES.OP_RETURN,
+          OP_CODES.OP_DEFI_TX_VOTE(undefined as unknown as Vote),
+        ])) ||
+      // one vote with change script, which returns UTXO back to masternode.owner
+      (tx.vout.length === 2 &&
+        this.voutAmountAndOpCodesAreEqual(tx.vout[0], new BigNumber(0), [
+          OP_CODES.OP_RETURN,
+          OP_CODES.OP_DEFI_TX_VOTE(undefined as unknown as Vote),
+        ]) &&
+        this.voutScriptIsEqual(tx.vout[1], script))
     );
   }
 
