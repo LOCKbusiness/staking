@@ -1,5 +1,5 @@
 import { config } from 'dotenv';
-import { machineIdSync } from 'node-machine-id';
+import { hostname } from 'os';
 import { version } from '../package.json';
 
 interface WalletConfig {
@@ -14,7 +14,7 @@ interface WalletConfig {
 }
 
 class ConfigClass {
-  deviceId = machineIdSync();
+  deviceId = hostname();
   version = version;
   unlockPin = process.env.UNLOCK_PIN;
 
