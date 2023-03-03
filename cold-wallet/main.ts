@@ -42,7 +42,7 @@ class App {
 
       // setup wallet and communication
       const wallet = await WalletHelper.restore(code);
-      wallet.initialize();
+      await wallet.initialize();
 
       this.logger.info(`wallet ${await wallet.getName()} initialized`);
 

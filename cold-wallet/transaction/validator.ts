@@ -32,24 +32,39 @@ export class Validator {
     return Boolean(Config.signature.allowedMessages.find((regex) => message.match(regex)));
   }
 
-  static isAllowed(tx: CTransactionSegWit, script: Script, liqScript: Script): boolean {
-    return (
-      Validator.createMasternode(tx, script) ||
-      Validator.resignMasternode(tx) ||
-      Validator.voteMasternode(tx, script) ||
-      Validator.sendFromLiq(tx, liqScript) || // & withdrawals
-      Validator.sendToLiq(tx, liqScript) || // & merge utxos
-      Validator.split(tx, liqScript) ||
-      Validator.sendAccountToAccount(tx) ||
-      Validator.createVault(tx, script) ||
-      Validator.depositToVault(tx, script) ||
-      Validator.withdrawFromVault(tx, script) ||
-      Validator.takeLoan(tx, script) ||
-      Validator.paybackLoan(tx, script) ||
-      Validator.addPoolLiquidity(tx, script) ||
-      Validator.removePoolLiquidity(tx, script) ||
-      Validator.compositeSwap(tx, script)
-    );
+  static isAllowed(tx: CTransactionSegWit, script: Script, liqScript: Script, defiTxType?: string): boolean {
+    switch (defiTxType) {
+      case 'OP_DEFI_TX_CREATE_MASTER_NODE':
+        return Validator.createMasternode(tx, script);
+      case 'OP_DEFI_TX_RESIGN_MASTER_NODE':
+        return Validator.resignMasternode(tx);
+      case 'OP_DEFI_TX_VOTE':
+        return Validator.voteMasternode(tx, script);
+      case 'OP_DEFI_TX_CREATE_VAULT':
+        return Validator.createVault(tx, script);
+      case 'OP_DEFI_TX_DEPOSIT_TO_VAULT':
+        return Validator.depositToVault(tx, script);
+      case 'OP_DEFI_TX_TAKE_LOAN':
+        return Validator.takeLoan(tx, script);
+      case 'OP_DEFI_TX_PAYBACK_LOAN':
+        return Validator.paybackLoan(tx, script);
+      case 'OP_DEFI_TX_WITHDRAW_FROM_VAULT':
+        return Validator.withdrawFromVault(tx, script);
+      case 'OP_DEFI_TX_POOL_ADD_LIQUIDITY':
+        return Validator.addPoolLiquidity(tx, script);
+      case 'OP_DEFI_TX_POOL_REMOVE_LIQUIDITY':
+        return Validator.removePoolLiquidity(tx, script);
+      case 'OP_DEFI_TX_COMPOSITE_SWAP':
+        return Validator.compositeSwap(tx, script);
+      case 'OP_DEFI_TX_ANY_ACCOUNT_TO_ACCOUNT':
+        return Validator.sendAccountToAccount(tx);
+      default:
+        return (
+          Validator.sendFromLiq(tx, liqScript) || // & withdrawals
+          Validator.sendToLiq(tx, liqScript) || // & merge utxos
+          Validator.split(tx, liqScript)
+        );
+    }
   }
 
   private static createMasternode(tx: CTransactionSegWit, ownerScript: Script): boolean {

@@ -13,6 +13,8 @@ import { Validator } from '../transaction/validator';
 import { CheckSignature, Crypto } from '../crypto/crypto';
 import { RawTxDto } from '../../shared/dto/raw-tx.dto';
 import { signAsync } from 'bitcoinjs-message';
+import { PreFilter } from '../transaction/pre-filter';
+import { VaultReader } from '../vaults/vault-reader';
 
 interface OwnerAddress {
   wallet: string;
@@ -26,20 +28,27 @@ export class ColdWallet {
   private readonly logger: Logger;
 
   private wallet?: JellyfishWallet<WhaleWalletAccount, WalletHdNode>;
+  private listOfVaults: string[];
+  private listOfAddresses: string[];
 
   constructor(seed: string[], network: Network) {
     this.seed = seed;
     this.network = network;
     this.logger = new Logger('Cold Wallet');
+    this.listOfVaults = VaultReader.read();
+    this.listOfAddresses = [];
   }
 
-  public initialize(): void {
+  public async initialize(): Promise<void> {
     if (!this.checkPrerequisites()) throw new Error('Seed is invalid');
     this.wallet = new JellyfishWallet(
       MnemonicHdNodeProvider.fromWords(this.seed, this.bip32OptionsBasedOn(this.network)),
       new WhaleWalletAccountProvider(undefined as unknown as WhaleApiClient, this.network),
       JellyfishWallet.COIN_TYPE_DFI,
       JellyfishWallet.PURPOSE_LIGHT_MASTERNODE,
+    );
+    this.listOfAddresses = await this.getAddresses(0, Config.wallet.numberOfAddresses).then((addresses) =>
+      addresses.map((ownerAddress) => ownerAddress.address),
     );
   }
 
@@ -67,16 +76,38 @@ export class ColdWallet {
   public async signTx(data: RawTxDto): Promise<SignedTxPayload> {
     if (!this.wallet) throw new Error('Wallet is not initialized');
 
+    const tx = this.parseTx(data.rawTx.hex);
+    const { isIncoming, isAllowed, defiTxType } = PreFilter.check(
+      tx.vout,
+      this.listOfVaults,
+      this.listOfAddresses,
+      data.payload,
+    );
+    if (!isAllowed) {
+      this.logger.warning('TX failed pre filter checks', data.id);
+      return { isError: true, signedTx: '' };
+    }
+    this.logger.info(`pre filter check done TX is ${isIncoming ? 'incoming' : 'outgoing'}`);
+
     const check: Partial<CheckSignature> = {
       message: data.rawTx.hex,
     };
     if (
-      !Crypto.verifySignature({ signature: data.issuerSignature, address: Config.signature.api, ...check }) ||
-      !Crypto.verifySignature({
-        signature: data.verifierSignature,
-        address: Config.signature.transactionChecker,
-        ...check,
-      })
+      isIncoming
+        ? !(
+            Crypto.verifySignature({ signature: data.issuerSignature, address: Config.signature.api, ...check }) ||
+            Crypto.verifySignature({
+              signature: data.verifierSignature,
+              address: Config.signature.transactionChecker,
+              ...check,
+            })
+          )
+        : !Crypto.verifySignature({ signature: data.issuerSignature, address: Config.signature.api, ...check }) ||
+          !Crypto.verifySignature({
+            signature: data.verifierSignature,
+            address: Config.signature.transactionChecker,
+            ...check,
+          })
     ) {
       this.logger.warning('TX failed signature check');
       return { isError: true, signedTx: '' };
@@ -88,8 +119,7 @@ export class ColdWallet {
     this.logger.info(`using account index ${accountIndex}`);
     const account = this.wallet.get(accountIndex);
 
-    const tx = this.parseTx(data.rawTx.hex);
-    if (!Validator.isAllowed(tx, await account.getScript(), await this.wallet.get(0).getScript())) {
+    if (!Validator.isAllowed(tx, await account.getScript(), await this.wallet.get(0).getScript(), defiTxType)) {
       this.logger.warning('TX failed validation', data.id);
       return { isError: true, signedTx: '' };
     }
