@@ -1,7 +1,6 @@
 import { OP_DEFI_TX, Script, Vout } from '@defichain/jellyfish-transaction';
 import { fromScript } from '@defichain/jellyfish-address';
 import { Util } from '../../shared/util';
-import { TransactionType } from './enums';
 
 export class PreFilter {
   static incomingTxTypes = [
@@ -24,16 +23,12 @@ export class PreFilter {
     vouts: Vout[],
     listOfVaults: string[],
     listOfAddresses: string[],
-    payload: { type: TransactionType },
   ): { isIncoming: boolean; isAllowed: boolean; defiTxType?: string } {
     if (vouts.length === 0) return { isIncoming: false, isAllowed: false };
-    const expectedIsIncoming = this.getExpectedIsIncoming(payload.type);
     const [isIncoming, defiTxType] = this.isIncomingBasedOn(vouts, listOfVaults, listOfAddresses);
     return {
       isIncoming,
-      isAllowed:
-        (expectedIsIncoming !== undefined ? expectedIsIncoming === isIncoming : true) &&
-        this.isOnCorrectList(defiTxType, isIncoming ? this.incomingTxTypes : this.outgoingTxTypes),
+      isAllowed: this.isOnCorrectList(defiTxType, isIncoming ? this.incomingTxTypes : this.outgoingTxTypes),
       defiTxType,
     };
   }
@@ -147,30 +142,5 @@ export class PreFilter {
     const decodedAddress = fromScript(script, network.name);
     if (!decodedAddress?.address) throw new Error('Could not parse address of script');
     return decodedAddress.address;
-  }
-
-  private static getExpectedIsIncoming(type: TransactionType): boolean | undefined {
-    switch (type) {
-      case TransactionType.CREATE_MASTERNODE:
-      case TransactionType.RESIGN_MASTERNODE:
-      case TransactionType.VOTE_MASTERNODE:
-      case TransactionType.UTXO_MERGE:
-      case TransactionType.UTXO_SPLIT:
-      case TransactionType.SEND_TO_LIQ:
-      case TransactionType.CREATE_VAULT:
-      case TransactionType.DEPOSIT_TO_VAULT:
-      case TransactionType.WITHDRAW_FROM_VAULT:
-      case TransactionType.TAKE_LOAN:
-      case TransactionType.PAYBACK_LOAN:
-      case TransactionType.POOL_ADD_LIQUIDITY:
-      case TransactionType.POOL_REMOVE_LIQUIDITY:
-      case TransactionType.COMPOSITE_SWAP:
-        return true;
-      case TransactionType.WITHDRAWAL:
-        return false;
-      case TransactionType.SEND_FROM_LIQ:
-      case TransactionType.ACCOUNT_TO_ACCOUNT:
-        return undefined;
-    }
   }
 }

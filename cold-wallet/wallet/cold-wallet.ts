@@ -77,38 +77,32 @@ export class ColdWallet {
     if (!this.wallet) throw new Error('Wallet is not initialized');
 
     const tx = this.parseTx(data.rawTx.hex);
-    const { isIncoming, isAllowed, defiTxType } = PreFilter.check(
-      tx.vout,
-      this.listOfVaults,
-      this.listOfAddresses,
-      data.payload,
-    );
+    const { isIncoming, isAllowed, defiTxType } = PreFilter.check(tx.vout, this.listOfVaults, this.listOfAddresses);
     if (!isAllowed) {
       this.logger.warning('TX failed pre filter checks', data.id);
       return { isError: true, signedTx: '' };
     }
-    this.logger.info(`pre filter check done TX is ${isIncoming ? 'incoming' : 'outgoing'}`);
+    this.logger.info(`pre filter check done TX is ${isIncoming ? 'incoming' : 'outgoing'} ${defiTxType ?? 'UTXO'}`);
 
     const check: Partial<CheckSignature> = {
       message: data.rawTx.hex,
     };
-    if (
-      isIncoming
-        ? !(
-            Crypto.verifySignature({ signature: data.issuerSignature, address: Config.signature.api, ...check }) ||
-            Crypto.verifySignature({
-              signature: data.verifierSignature,
-              address: Config.signature.transactionChecker,
-              ...check,
-            })
-          )
-        : !Crypto.verifySignature({ signature: data.issuerSignature, address: Config.signature.api, ...check }) ||
-          !Crypto.verifySignature({
-            signature: data.verifierSignature,
-            address: Config.signature.transactionChecker,
-            ...check,
-          })
-    ) {
+
+    const isSignatureValid = isIncoming
+      ? Crypto.verifySignature({ signature: data.issuerSignature, address: Config.signature.api, ...check }) ||
+        Crypto.verifySignature({
+          signature: data.verifierSignature,
+          address: Config.signature.transactionChecker,
+          ...check,
+        })
+      : Crypto.verifySignature({ signature: data.issuerSignature, address: Config.signature.api, ...check }) &&
+        Crypto.verifySignature({
+          signature: data.verifierSignature,
+          address: Config.signature.transactionChecker,
+          ...check,
+        });
+
+    if (!isSignatureValid) {
       this.logger.warning('TX failed signature check');
       return { isError: true, signedTx: '' };
     }
@@ -120,7 +114,7 @@ export class ColdWallet {
     const account = this.wallet.get(accountIndex);
 
     if (!Validator.isAllowed(tx, await account.getScript(), await this.wallet.get(0).getScript(), defiTxType)) {
-      this.logger.warning('TX failed validation', data.id);
+      this.logger.warning(`TX failed validation for ${defiTxType}`, data.id);
       return { isError: true, signedTx: '' };
     }
     this.logger.info('validation passed');
