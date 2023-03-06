@@ -79,7 +79,9 @@ export class ColdWallet {
     const tx = this.parseTx(data.rawTx.hex);
     const { isIncoming, isAllowed, defiTxType } = PreFilter.check(tx.vout, this.listOfVaults, this.listOfAddresses);
     if (!isAllowed) {
-      this.logger.warning('TX failed pre filter checks', data.id);
+      this.logger.warning(
+        `TX failed pre filter checks: ${isIncoming ? 'incoming' : 'outgoing'} ${defiTxType ?? 'UTXO'}`,
+      );
       return { isError: true, signedTx: '' };
     }
     this.logger.info(`pre filter check done TX is ${isIncoming ? 'incoming' : 'outgoing'} ${defiTxType ?? 'UTXO'}`);
@@ -88,19 +90,17 @@ export class ColdWallet {
       message: data.rawTx.hex,
     };
 
-    const isSignatureValid = isIncoming
-      ? Crypto.verifySignature({ signature: data.issuerSignature, address: Config.signature.api, ...check }) ||
-        Crypto.verifySignature({
-          signature: data.verifierSignature,
-          address: Config.signature.transactionChecker,
-          ...check,
-        })
-      : Crypto.verifySignature({ signature: data.issuerSignature, address: Config.signature.api, ...check }) &&
-        Crypto.verifySignature({
-          signature: data.verifierSignature,
-          address: Config.signature.transactionChecker,
-          ...check,
-        });
+    const issuerValid = Crypto.verifySignature({
+      signature: data.issuerSignature,
+      address: Config.signature.api,
+      ...check,
+    });
+    const verifierValid = Crypto.verifySignature({
+      signature: data.verifierSignature,
+      address: Config.signature.transactionChecker,
+      ...check,
+    });
+    const isSignatureValid = isIncoming ? issuerValid || verifierValid : issuerValid && verifierValid;
 
     if (!isSignatureValid) {
       this.logger.warning('TX failed signature check');
