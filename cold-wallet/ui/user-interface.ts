@@ -45,6 +45,10 @@ export class UserInterface {
         await this.led.blink(Color.BLUE);
         break;
 
+      case UiState.LOADING:
+        await this.led.blink(Color.YELLOW);
+        break;
+
       case UiState.ALARM:
         await this.led.blink(Color.RED, Color.BLACK, 0.25);
         break;
