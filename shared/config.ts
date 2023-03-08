@@ -11,12 +11,14 @@ interface WalletConfig {
     readFilePath: (share: number) => string;
     writeFilePath: (share: number) => string;
   };
+  numberOfAddresses: number;
 }
 
 class ConfigClass {
   deviceId = hostname();
   version = version;
   unlockPin = process.env.UNLOCK_PIN;
+  environment = process.env.ENVIRONMENT;
 
   logger = {
     role: 'lock-transaction-signer',
@@ -53,6 +55,7 @@ class ConfigClass {
       readFilePath: (share: number) => `${process.env.SEED_FILE_PATH}${share}/share.shamir`,
       writeFilePath: (share: number) => `shares/share${share}/share.shamir`,
     },
+    numberOfAddresses: +(process.env.NUMBER_OF_ADDRESSES ?? '0'),
   };
 }
 

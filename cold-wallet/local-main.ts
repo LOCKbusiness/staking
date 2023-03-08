@@ -19,7 +19,7 @@ class App {
   async run(): Promise<void> {
     try {
       const wallet = await WalletHelper.restore('');
-      wallet.initialize();
+      await wallet.initialize();
 
       this.communication.on(Operation.RECEIVE_WALLET_NAME, () => wallet.getName());
       this.communication.on(Operation.RECEIVE_ADDRESS, () => wallet.getAddress());

@@ -11,7 +11,7 @@ class App {
     console.log();
 
     const wallet = await WalletHelper.restore(code);
-    wallet.initialize();
+    await wallet.initialize();
 
     const addresses = await wallet.getAddresses(0, addressCount);
 

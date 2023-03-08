@@ -21,7 +21,7 @@ class App {
     // generate new wallet
     this.logger.info('generating new wallet ...');
     const wallet = await WalletHelper.generate(code);
-    wallet.initialize();
+    await wallet.initialize();
     this.logger.info(`   => wallet '${await wallet.getName()}' initialized`);
 
     // generate owner addresses
