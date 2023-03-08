@@ -15,7 +15,7 @@
     "shamir": "ts-node util/decrypt-shamir.ts",
     "addresses": "ts-node --files util/generate-addresses.ts",
     "voting": "ts-node util/sign-votes.ts",
-    "test": "jest",
+    "test": "jest --silent",
     "lint": "eslint \"**/*.ts\" --no-fix"
   },
   "author": "",
