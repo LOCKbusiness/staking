@@ -4,6 +4,10 @@ import { Encryption } from '../cold-wallet/crypto/encryption';
 import { Shamir } from '../cold-wallet/crypto/shamir';
 import { Util } from '../shared/util';
 
+/**
+ * Verify a seed completely (all share combinations)
+ */
+
 class App {
   async run(): Promise<void> {
     const code = await Util.getCliInput('Please enter the pass code:', true);
@@ -18,8 +22,7 @@ class App {
     const shareCombinations = this.getPossibleCombinations(shares, Config.wallet.seed.thresholdCount);
     for (const combination of shareCombinations) {
       const seed = Shamir.join(combination);
-      if (seed.match(/[^a-z\s]/)) {
-        console.log();
+      if (!Shamir.isValid(seed)) {
         throw new Error(`Invalid share combination found`);
       }
     }

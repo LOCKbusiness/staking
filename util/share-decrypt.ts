@@ -3,6 +3,10 @@ import Config from '../shared/config';
 import { Encryption } from '../cold-wallet/crypto/encryption';
 import { Util } from '../shared/util';
 
+/**
+ * Decrypt a seed share
+ */
+
 class App {
   async run(): Promise<void> {
     const code = await Util.getCliInput('Please enter the pass code:', true);

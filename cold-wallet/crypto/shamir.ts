@@ -24,6 +24,10 @@ export class Shamir {
     return this.bytesToString(recovered, SECRET_ENCODING);
   }
 
+  static isValid(seed: string): boolean {
+    return !seed.match(/[^a-z\s]/);
+  }
+
   // --- HELPER METHODS --- //
   private static stringToBytes(str: string, encoding: BufferEncoding): Buffer {
     return Buffer.from(str, encoding);

@@ -31,7 +31,7 @@ export class SecureSeed {
     const seed = Shamir.join(shares);
 
     // sanity check
-    if (seed.match(/[^a-z\s]/)) throw new Error(`Invalid seed phrase: ${seed}`);
+    if (!Shamir.isValid(seed)) throw new Error(`Invalid seed phrase: ${seed}`);
 
     return seed.split(' ');
   }

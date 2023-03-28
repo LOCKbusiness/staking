@@ -2,6 +2,10 @@ import { exit } from 'process';
 import { WalletHelper } from '../cold-wallet/wallet/wallet-helper';
 import { Util } from '../shared/util';
 
+/**
+ * Generate wallet addresses
+ */
+
 class App {
   async run(): Promise<void> {
     const addressCount = +(process.argv[2] ?? 0);
@@ -15,9 +19,9 @@ class App {
 
     const addresses = await wallet.getAddresses(0, addressCount);
 
-    const fileName = 'owner.json';
+    const fileName = 'wallet-addresses.json';
     Util.writeFile(fileName, addresses);
-    console.log(`Owner address list written to file '${fileName}'`);
+    console.log(`Address list written to file '${fileName}'`);
   }
 }
 
