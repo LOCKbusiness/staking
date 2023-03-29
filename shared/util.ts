@@ -14,6 +14,16 @@ export class Util {
     return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
   }
 
+  static secondsAfter(seconds: number, from?: Date): Date {
+    const date = from ? new Date(from) : new Date();
+    date.setSeconds(date.getSeconds() + seconds);
+    return date;
+  }
+
+  static secondsBefore(seconds: number, from?: Date): Date {
+    return this.secondsAfter(-seconds, from);
+  }
+
   static poll<T>(
     action: () => Promise<T | undefined>,
     verify: (result: T | undefined) => boolean,

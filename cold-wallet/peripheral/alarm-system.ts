@@ -4,26 +4,27 @@ import { UserInterface } from '../ui/user-interface';
 import Shell from 'shelljs';
 import Config from '../../shared/config';
 import { InputPin } from './input-pin';
+import { Util } from '../../shared/util';
 
 export class AlarmSystem {
   private readonly gpio = GPIO.promise;
 
-  private readonly openPin = new InputPin(33, 'both', 500);
-  private readonly motionPin = new InputPin(7, 'both', 500);
+  private readonly closePin = new InputPin(33, 'both', 100);
+  private readonly motionPin = new InputPin(7, 'both', 1);
 
   private hasAlarm = false;
-  private isOpen?: boolean = undefined;
+  private closedOn?: Date = undefined;
 
   constructor(private readonly ui: UserInterface) {}
 
   async connect() {
-    await this.openPin.setup();
+    await this.closePin.setup();
     await this.motionPin.setup();
 
-    this.isOpen = !(await this.openPin.read());
+    await this.closePin.read().then((c) => this.setCloseDate(c));
 
     // add listeners
-    this.openPin.onChange.subscribe((v) => this.onOpen(!v));
+    this.closePin.onChange.subscribe((v) => this.onClose(v));
     this.motionPin.onChange.subscribe((v) => this.onMotion(v));
   }
 
@@ -32,16 +33,27 @@ export class AlarmSystem {
   }
 
   // --- HELPER METHODS --- //
-  private onOpen(isOpen: boolean) {
-    this.isOpen = isOpen;
-    if (isOpen) void this.onAlarm();
+  private setCloseDate(isClosed: boolean) {
+    this.closedOn = isClosed ? this.closedOn ?? new Date() : undefined;
+  }
+
+  private onClose(isClosed: boolean) {
+    if (!isClosed) this.onAlarm();
+
+    this.setCloseDate(isClosed);
   }
 
   private onMotion(hasMotion: boolean) {
-    if (hasMotion && !this.isOpen) void this.onAlarm();
+    if (hasMotion) this.onAlarm();
   }
 
-  private async onAlarm() {
+  private onAlarm() {
+    if (!this.closedOn || this.closedOn > Util.secondsBefore(10)) return;
+
+    void this.signalAlarm();
+  }
+
+  private async signalAlarm() {
     if (this.hasAlarm) return;
     this.hasAlarm = true;
 
