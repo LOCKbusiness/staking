@@ -10,7 +10,7 @@ export class AlarmSystem {
   private readonly gpio = GPIO.promise;
 
   private readonly closePin = new InputPin(33, 'both', 100);
-  private readonly motionPin = new InputPin(7, 'both', 1);
+  private readonly motionPin = new InputPin(35, 'both', 1);
 
   private hasAlarm = false;
   private closedOn?: Date = undefined;
