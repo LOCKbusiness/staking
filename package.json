@@ -7,6 +7,7 @@
     "cw-setup": "ts-node --files cold-wallet/setup.ts",
     "seed-verify": "ts-node --files util/seed-verify.ts",
     "seed-recovery": "ts-node --files util/seed-recovery.ts",
+    "seed-decrypt": "ts-node --files util/seed-decrypt.ts",
     "seed-renew": "ts-node --files util/seed-renew.ts",
     "share-decrypt": "ts-node util/share-decrypt.ts",
     "address-gen": "ts-node --files util/address-generate.ts",
