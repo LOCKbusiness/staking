@@ -39,12 +39,12 @@
     "typescript": "^4.8.2"
   },
   "dependencies": {
-    "@defichain/jellyfish-api-core": "^2.65.0",
-    "@defichain/jellyfish-api-jsonrpc": "^2.65.0",
-    "@defichain/jellyfish-network": "^2.65.0",
-    "@defichain/jellyfish-wallet": "^2.65.0",
-    "@defichain/jellyfish-wallet-mnemonic": "^2.65.0",
-    "@defichain/whale-api-wallet": "^2.65.0",
+    "@defichain/jellyfish-api-core": "^3.30.1",
+    "@defichain/jellyfish-api-jsonrpc": "^3.30.1",
+    "@defichain/jellyfish-network": "^3.30.1",
+    "@defichain/jellyfish-wallet": "^3.30.1",
+    "@defichain/jellyfish-wallet-mnemonic": "^3.30.1",
+    "@defichain/whale-api-wallet": "^3.30.1",
     "applicationinsights": "^2.3.6",
     "axios": "^0.27.2",
     "bitcoinjs-message": "^2.2.0",
